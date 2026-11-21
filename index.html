@@ -55,7 +55,7 @@
     <div class="flex items-center gap-2.5">
       <div class="w-7 h-7 rounded bg-teal-950/90 border border-teal-400/50 flex items-center justify-center text-teal-300 font-bold text-sm">✦</div>
       <div>
-        <h1 class="text-sm sm:text-base font-bold tracking-wide text-amber-300 leading-tight">星詠遠征團：低語霧林</h1>
+        <h1 class="text-sm sm:text-base font-bold tracking-wide text-amber-300 leading-tight">星詠遠征團：低語霧林 <span class="text-[11px] font-mono text-teal-300 bg-teal-950/80 border border-teal-500/40 px-1.5 py-0.2 rounded ml-1">v1.2</span></h1>
         <p class="text-[11px] text-slate-400 leading-tight">尼布格靈汀近郊 × 戰術編排 × 經驗入帳輪迴</p>
       </div>
     </div>
@@ -89,6 +89,7 @@
       <button id="btnPause" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-slate-200 text-xs font-bold px-2 py-1 rounded">暫停</button>
       <button id="btnAutoRetry" class="pixel-btn bg-emerald-900/60 hover:bg-emerald-800/70 text-emerald-300 border-emerald-600/60 text-xs font-bold px-2 py-1 rounded">自動輪迴: 開</button>
       <button id="btnAutoCampDeath" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-slate-400 text-xs font-bold px-2 py-1 rounded" title="戰鬥結束若有人陣亡，自動返回營地休整">陣亡回營: 關</button>
+      <button id="btnChangelog" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-amber-200 text-xs font-bold px-2 py-1 rounded" title="查看版本更新日誌">📋 更新日誌</button>
       <button id="btnSaveMgr" class="pixel-btn bg-indigo-900/70 hover:bg-indigo-800 text-indigo-200 border-indigo-500/50 text-xs font-bold px-2 py-1 rounded" title="手動存檔 / 匯出與匯入存檔碼">💾 存檔</button>
       <button id="btnMute" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-slate-300 text-xs px-2 py-1 rounded" title="音效開關">🔊</button>
     </div>
@@ -149,6 +150,43 @@
             <div class="flex items-center justify-center gap-2 pt-1">
               <button id="btnCasualtyCamp" class="pixel-btn bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold px-3.5 py-1.5 rounded">⛺ 立即回營地</button>
               <button id="btnCasualtyContinue" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-slate-200 text-xs font-bold px-3.5 py-1.5 rounded">▶ 繼續前進</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Changelog Modal -->
+        <div id="changelogModal" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 z-30">
+          <div class="pixel-panel rounded-lg max-w-md w-full p-4 space-y-3 border-amber-400/70 max-h-[90%] flex flex-col">
+            <div class="flex items-center justify-between">
+              <span class="text-amber-300 font-bold text-base">📋 更新日誌（目前版本 v1.2）</span>
+              <button id="btnChangelogClose" class="text-slate-400 hover:text-white text-sm font-bold px-2">✕</button>
+            </div>
+            <div id="changelogBody" class="text-xs text-slate-200 space-y-3 overflow-y-auto pr-1 leading-relaxed">
+              <div class="bg-[#101520] border border-teal-500/40 rounded p-2.5">
+                <div class="font-bold text-teal-300 mb-1">v1.2（2026-11-21）</div>
+                <ul class="list-disc pl-4 space-y-0.5 text-slate-300">
+                  <li>營地補給與星塵祭壇的品項會顯示下一次價格。</li>
+                  <li>學到新技能會自動加入該角色的戰術。</li>
+                  <li>更新隊伍點陣圖。</li>
+                  <li>新增版號顯示與更新日誌。</li>
+                </ul>
+              </div>
+              <div class="bg-[#101520] border border-[#273248] rounded p-2.5">
+                <div class="font-bold text-sky-300 mb-1">v1.1（2026-11-20）</div>
+                <ul class="list-disc pl-4 space-y-0.5 text-slate-300">
+                  <li>MP 新增回復管道：普攻回魔提高，新增行動回復與每波結束回復，不再打到後面只剩普攻。</li>
+                  <li>戰術條件擴充：敵人種類、敵人數量、敵人狀態與反應技（守護）專用條件。</li>
+                  <li>新敵人：大哥布林 Hobgoblin，會指揮哥布林群集火攻擊。</li>
+                  <li>存檔多了存檔碼匯入／匯出與下載存檔。</li>
+                  <li>「最高波次」改為「已抵達之最高波次」。</li>
+                </ul>
+              </div>
+              <div class="bg-[#101520] border border-[#273248] rounded p-2.5">
+                <div class="font-bold text-slate-300 mb-1">v1.0（2026-11-19）</div>
+                <ul class="list-disc pl-4 space-y-0.5 text-slate-400">
+                  <li>初版上架。</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -395,222 +433,318 @@
     // =========================================================================
     const PALETTES = {
       gusbiki: {
-        '.': null, 'K': '#1b1d2b', 'S': '#f7d3b5', 'H': '#ebd083',
-        'R': '#b92b27', 'F': '#e5b84b', 'W': '#f0ece1', 'B': '#7d4e34',
+        '.': null,
+        'K': '#18141e', // dark outline
+        'S': '#f8d7be', // skin base
+        's': '#e2b294', // skin shadow
+        'H': '#f5dc8c', // blonde hair highlight
+        'h': '#d4ae54', // blonde hair shadow
+        'R': '#d13632', // red beret & cloak
+        'r': '#8f1d1d', // red shadow
+        'F': '#ffd966', // gold trim & feather tip
+        'W': '#f5f0e4', // cream tunic
+        'B': '#8c5330', // lute / boots
+        'b': '#5c331b', // lute shadow
+        'E': '#593325', // eyes
       },
       shandriel: {
-        '.': null, 'K': '#1b1d2b', 'S': '#f5dcd0', 'H': '#1e352d',
-        'E': '#d9383a', 'C': '#2f5241', 'B': '#6e4730', 'W': '#e8e2d5', 'A': '#f2b749',
+        '.': null,
+        'K': '#14171d', // dark outline
+        'S': '#fae4d8', // pale elf skin
+        's': '#dfb8a8', // skin shadow
+        'H': '#26463b', // dark emerald hair
+        'h': '#162922', // hair shadow
+        'E': '#e63946', // red eyes & red bow
+        'e': '#9e1c26', // bow shadow
+        'C': '#345e4b', // green cloak
+        'c': '#224032', // cloak shadow
+        'B': '#7a4d34', // brown vest
+        'W': '#f0eadc', // ruffled shirt
+        'A': '#ffd166', // amber earring & staff gold
+        'G': '#72efdd', // arcane glow
       },
       heinzel: {
-        '.': null, 'K': '#1b1d2b', 'S': '#f0c8b4', 'H': '#4a2e22',
-        'C': '#2c593f', 'B': '#5e3622', 'W': '#ede2cf', 'L': '#7a4d2c', 'G': '#7ef26d',
+        '.': null,
+        'K': '#15161c', // dark outline
+        'S': '#f2ccb8', // skin
+        's': '#d49d88', // scar/under-eye shade
+        'H': '#593728', // brown hair
+        'h': '#3b2218', // hair shadow
+        'C': '#2f6145', // green hood/cloak
+        'c': '#1e402d', // cloak shadow
+        'B': '#6e3f27', // leather corset
+        'b': '#4a2817', // corset shadow
+        'W': '#f2e8d5', // cream puff sleeves
+        'L': '#855330', // long staff
+        'G': '#80ff72', // herb crystal glow
+        'A': '#f4c95d', // gold clasp
+        'E': '#8c2327', // red eyes
       },
       gob_dagger: {
-        '.': null, 'K': '#151b18', 'G': '#6ab04c', 'D': '#437330', 'L': '#7d5233', 'W': '#dce4ed'
+        '.': null, 'K': '#141a15', 'G': '#72bf50', 'g': '#498232', 'L': '#8a5b38', 'l': '#593820', 'W': '#e2e8f0', 'E': '#fbbf24'
       },
       gob_spear: {
-        '.': null, 'K': '#151b18', 'G': '#5da340', 'D': '#386127', 'R': '#9c4532', 'W': '#dce4ed', 'B': '#6e472b'
+        '.': null, 'K': '#141a15', 'G': '#68b347', 'g': '#3f7329', 'R': '#b54a36', 'r': '#782c1e', 'B': '#754c29', 'W': '#e8eef5', 'E': '#fbbf24'
       },
       gob_archer: {
-        '.': null, 'K': '#151b18', 'G': '#74b856', 'H': '#3e5e32', 'B': '#855330', 'W': '#e8d7b0'
+        '.': null, 'K': '#141a15', 'G': '#7ac458', 'g': '#4b8233', 'H': '#3b5c34', 'h': '#253b20', 'B': '#915c34', 'W': '#f3e5c0', 'E': '#fbbf24'
       },
       gob_hammer: {
-        '.': null, 'K': '#151b18', 'G': '#4d8a35', 'A': '#5a6270', 'M': '#8d99ae', 'L': '#694024'
+        '.': null, 'K': '#141a15', 'G': '#589c3b', 'g': '#366323', 'A': '#64748b', 'a': '#475569', 'M': '#cbd5e1', 'L': '#734424', 'E': '#f87171'
       },
       gob_shaman: {
-        '.': null, 'K': '#151b18', 'G': '#63a349', 'P': '#6c3483', 'R': '#e74c3c', 'F': '#f39c12', 'W': '#8e5b32'
-      },
-      warg: {
-        '.': null, 'K': '#14171f', 'F': '#4b5563', 'L': '#7d8899', 'E': '#fbbf24', 'W': '#e2e8f0'
-      },
-      warg_rider: {
-        '.': null, 'K': '#14171f', 'F': '#4b5563', 'L': '#7d8899', 'G': '#6ab04c', 'R': '#b93829', 'W': '#dce4ed'
+        '.': null, 'K': '#141a15', 'G': '#6eb350', 'g': '#43752e', 'P': '#7e3af2', 'p': '#4c1d95', 'F': '#fb923c', 'Y': '#fde047', 'B': '#855330', 'W': '#f8fafc'
       },
       hobgoblin: {
-        '.': null, 'K': '#141115', 'O': '#c85a32', 'D': '#8f391d', 'A': '#64748b', 'M': '#cbd5e1', 'Y': '#fbbf24'
+        '.': null, 'K': '#171014', 'O': '#d96236', 'o': '#9e3e1c', 'A': '#64748b', 'a': '#334155', 'M': '#e2e8f0', 'Y': '#fbbf24', 'R': '#ef4444'
+      },
+      warg: {
+        '.': null, 'K': '#12151c', 'F': '#525d6e', 'f': '#353d4a', 'L': '#8d99ab', 'E': '#fbbf24', 'W': '#f1f5f9'
+      },
+      warg_rider: {
+        '.': null, 'K': '#12151c', 'F': '#525d6e', 'f': '#353d4a', 'L': '#8d99ab', 'G': '#6eb350', 'R': '#c93b2b', 'W': '#e2e8f0', 'E': '#fbbf24'
       },
       barghest: {
-        '.': null, 'K': '#09090d', 'B': '#1f2029', 'D': '#323442', 'R': '#ff2a3c', 'W': '#e2e8f0'
+        '.': null, 'K': '#09090d', 'B': '#1f202b', 'b': '#12131a', 'D': '#383b4d', 'R': '#ff2a3c', 'r': '#99111d', 'W': '#f1f5f9'
       }
     };
 
     const SPRITES = {
-      gusbiki: [
-        '.....RRR....',
-        '...RRRRRR...',
-        '..RRRRFRRR..',
-        '..KHHHHHHK..',
-        '.KHHSSSSHHK.',
-        '.KHSKSSKSHK.',
-        '..KHSSSSHK..',
-        '..KRWWWWBRK.',
-        '.KRWWFFWWBK.',
-        '.KRRRWWBRRK.',
-        '..KRRRRRRK..',
-        '...KB..BK...',
-        '..KKB..BKK..',
-        '............'
+      gusbiki: [ // 古斯比琪 = Goodspeech (側身面向右，紅羽帽＋金髮＋箭袋＋短劍/魯特琴)
+        '....RRRR............',
+        '..FFRRRRRR..........',
+        '..RRRRrrRRRK........',
+        '...KHHHHHHHHK.......',
+        '..KHHhHHHSSSSK......',
+        '.KHHhhSSESSSESK.....',
+        '.KHHsKSHSSSSSSK.....',
+        '..KHH.KKSSSSsK......',
+        '..KBBKRRWWWWK.......',
+        '.KBBbKRRWWFFKK..W...',
+        '.KBBKRRrWWWWbBKKW...',
+        '..KKKRRrRRRRbBBWW...',
+        '....KRRRRRRRRK......',
+        '.....KBB..BBK.......',
+        '.....KBb..bBK.......',
+        '....KKb....bKK......',
+        '....................',
+        '....................'
       ],
-      shandriel: [
-        '...HHHHHH...',
-        '..HHHHHHHH..',
-        '.KHHHHHHHHK.',
-        'KSHSSSSSSHSK',
-        '.KHSEKKESHK.',
-        '.KHAWWWWSHK.',
-        '..KCCEECCKA.',
-        '.KCCBBBBCCKA',
-        '.KCCWWWWCCKB',
-        '..KCBBBBKC.B',
-        '...KB..BK..B',
-        '...KB..BK...',
-        '..KKB..BKK..',
-        '............'
+      shandriel: [ // 香卓莉爾 = Chandrelle (側身面向右，墨綠長髮＋精靈耳＋紅眼＋紅蝴蝶結＋法杖)
+        '.....HHHHHHHH.......',
+        '...HHHHHHHHHHK......',
+        '..KHHHHhhHHHHHK.....',
+        '.KHHhHHHSSSSSHHK....',
+        '.KHHsKSHSEKSESHK....',
+        '..KHAsKHSSSSSSHK.A..',
+        '..KHH.KKSSSSsHK.AGA.',
+        '...KK..KCCeEEcK..A..',
+        '......KCCeEEEEcK.B..',
+        '.....KCCcBBBBBcK.B..',
+        '.....KCCWWWWWWWK.B..',
+        '......KCCBBBBBcK.B..',
+        '.......KCCc..cCK.B..',
+        '.......KBB....BBKB..',
+        '.......KBb....bBKB..',
+        '......KKb......bKK..',
+        '....................',
+        '....................'
       ],
-      heinzel: [
-        '...CCCCCC...',
-        '..CCCCCCCC..',
-        '.KCCCHHCCC..',
-        '.KCHHHHHHCK.',
-        '.KCHSSSSCHK.',
-        '..KHSKKSHK..',
-        '.KCCWWWWCCK.',
-        'LKWWBBBBWWKL',
-        'LKWWBBBBWWKL',
-        '.L.KBBBBK.L.',
-        '.L..KB.BK...',
-        '.L..KB.BK...',
-        '...KK..KK...',
-        '............'
+      heinzel: [ // 海茵潔 = Heintje (側身面向右，深綠兜帽＋棕髮＋眼下紅影＋皮馬甲＋長杖)
+        '....CCCCCCCC........',
+        '...CCCCCCCCCCK......',
+        '..KCCCcHHHHHHHK.....',
+        '.KCCcHHHSSSSSHK.....',
+        '.KCCcHHsSEKSESK.....',
+        '.KCCcHHsSSSSSSK..G..',
+        '..KCCc.KKSSSSsK.GLG.',
+        '...KK...KCCcAAK..L..',
+        '.......KCCWWWWWK.L..',
+        '......KCCWBBBBWK.L..',
+        '......KCCWBBbbWK.L..',
+        '.......KCCcBBBcK.L..',
+        '........KCCc..cK.L..',
+        '........KBB...BKKL..',
+        '........KBb...bBKL..',
+        '.......KKb.....bKK..',
+        '....................',
+        '....................'
       ],
       gob_dagger: [
-        '............',
-        '..K......K..',
-        '.KGKGGGGKGK.',
-        '..KGGGGGGK..',
-        '..KGKGGKGK..',
-        '...KGGGGK...',
-        '..KLLLLLLK..',
-        'WWKLLLLLLK..',
-        '..KDDDDDDK..',
-        '...KD..DK...',
-        '..KKD..DKK..',
-        '............'
+        '................',
+        '....KKKK........',
+        '.KKKGGGGK.......',
+        '.KGGGGGGgK......',
+        '..KGGGEKGEK.....',
+        '..KGGGGGGGK.....',
+        '...KLLLLLK..W...',
+        '..KLLLLllLKWW...',
+        '..KLLLLLLLKWW...',
+        '...Kll..llK.....',
+        '...Kl....lK.....',
+        '..KKl....lKK....',
+        '................',
+        '................'
       ],
       gob_spear: [
-        'W...........',
-        'WK.K....K...',
-        'BKGGGGGGGGK.',
-        'B.KGGGGGGK..',
-        'B.KGKGGKGK..',
-        'B..KGGGGK...',
-        'B.KRRRRRRK..',
-        'BKRRRRRRRRK.',
-        'B.KDDDDDDK..',
-        '...KD..DK...',
-        '..KKD..DKK..',
-        '............'
+        '.............W..',
+        '...KKKK......WK.',
+        '.KKGGGGK.....B..',
+        '.KGGGGGGgK...B..',
+        '..KGGGEKGEK..B..',
+        '..KGGGGGGGK..B..',
+        '...KRRRRRRK..B..',
+        '..KRRrrRRrKKKB..',
+        '..KRRRRRRRK..B..',
+        '...Krr..rrK..B..',
+        '...Kr....rK.....',
+        '..KKr....rKK....',
+        '................',
+        '................'
       ],
       gob_archer: [
-        '...HHHHHH...',
-        '..KHHHHHHK..',
-        '.KGKGGGGKGK.',
-        '..KGKGGKGK..',
-        '.B.KGGGGK...',
-        'B.KBBBBBBK..',
-        'B.KBBBBBBK..',
-        '.B.KHHHHK...',
-        '...KH..HK...',
-        '..KKH..HKK..',
-        '............',
-        '............'
+        '...HHHHHH.......',
+        '..KHHHHHHhK.....',
+        '..KGKGGGGGGK....',
+        '...KGGGEKGEGK...',
+        '...KGGGGGGGK.B..',
+        '..B.KHHHHHHK..B.',
+        '.BW.KHHHHHHK..WB',
+        '..B..Khh.hhK..B.',
+        '.....Kh...hK.B..',
+        '....KKh...hKK...',
+        '................',
+        '................',
+        '................',
+        '................'
       ],
       gob_hammer: [
-        '..MMMM......',
-        '.KMMMMK.K.K.',
-        '.KMMMMKGGGGK',
-        '..KLLKGGGGGK',
-        '...KLKGKGGKK',
-        '...KLKAAAAAK',
-        '..KAAAAAAAAK',
-        '..KAAAAAAAAK',
-        '...KDDDDDDK.',
-        '...KD....DK.',
-        '..KKD....DKK',
-        '............'
+        '..........MMMM..',
+        '...KKKK..KMMMMaK',
+        '.KKGGGGK.KMMMMaK',
+        '.KGGGGGGgK.KLaK.',
+        '..KGGGEKGEK.KLK.',
+        '..KAAAAAAAAK.LK.',
+        '.KAAAAaaAAAAKK..',
+        '.KAAAAAAAAAAK...',
+        '..KAAAAAAAAK....',
+        '...Kaa..aaK.....',
+        '...Ka....aK.....',
+        '..KKa....aKK....',
+        '................',
+        '................'
       ],
       gob_shaman: [
-        '..F..PP.....',
-        '.FRFPPPP....',
-        '..WKPPPPPK..',
-        '..WKGGGGGK..',
-        '..WKGKGGKK..',
-        '..WKPPPPPK..',
-        '..WKPPPPPK..',
-        '..WKDDDDDK..',
-        '...KD...DK..',
-        '..KKD...DKK.',
-        '............',
-        '............'
-      ],
-      warg: [
-        '............',
-        '..K....K....',
-        '.KFK..KFK...',
-        '.KFFFFFFK...',
-        'KFFEFFFFFK..',
-        'KWWLFFFFFKK.',
-        '.KFFFFFFFFK.',
-        '..KFF..FFK..',
-        '..KF....FK..',
-        '..KK....KK..',
-        '............',
-        '............'
-      ],
-      warg_rider: [
-        '...KGGGGK...',
-        '..KGGKGGGK..',
-        '..KRRRRRRK..',
-        '.WKRRRRRRK..',
-        '.KFFFFFFFFK.',
-        'KFFEFFFFFKK.',
-        'KLLLFFFFFFK.',
-        '.KFFFFFFFFK.',
-        '..KFF..FFK..',
-        '..KF....FK..',
-        '..KK....KK..',
-        '............'
+        '....PPPP....Y...',
+        '...PPPPPP..YFY..',
+        '..KPPPPppK..F...',
+        '..KGGGGGGgK.B...',
+        '..KGGWEKWGK.B...',
+        '..KPPPPppK..B...',
+        '..KPPPPPPK..B...',
+        '...Kpp.ppK..B...',
+        '...Kp...pK..B...',
+        '..KKp...pKK.....',
+        '................',
+        '................',
+        '................',
+        '................'
       ],
       hobgoblin: [
-        '..K......K..',
-        '.KOKOOOOOKOK',
-        '..KOOOOOOOK.',
-        '..KOYKKOYKK.',
-        '..KOOOOOOOK.',
-        'MKAAAAAAAAKM',
-        'MKAAAYYAAAKM',
-        'MKAAAAAAAAKM',
-        '..KDDDDDDDK.',
-        '..KDD...DDK.',
-        '.KKD.....DKK',
-        '............'
+        '..K......K......',
+        '.KOKOOOOOKOK....',
+        '.KOOOOOOOOOoK...',
+        '..KOOYKKKYOK....',
+        '..KOOOOOOOOOK...',
+        '.KAAAAYYAAAAK.M.',
+        'KAAAaaAAaaAAAKM.',
+        'KAAAAAAAAAAAAKM.',
+        '.KoooAAAAoooK...',
+        '..Kooo..oooK....',
+        '..Koo....ooK....',
+        '.KKo......oKK...',
+        '................',
+        '................'
+      ],
+      warg: [
+        '................',
+        '........K....K..',
+        '.......KFK..KFK.',
+        '.......KFFFFFFK.',
+        '......KFFEFFFFFK',
+        '..KKKKFFFFFLLWWK',
+        '.KFFFFFFFFLLLLK.',
+        '..KFFffffFFFFK..',
+        '..KFFf....fFFK..',
+        '..KFf......fFK..',
+        '..KK........KK..',
+        '................',
+        '................',
+        '................'
+      ],
+      warg_rider: [
+        '....KGGGGGGK....',
+        '...KGGGKEGGGK...',
+        '..KRRRRRRRRRRK..',
+        '..KRRRRRRrrRRKWW',
+        '..KFFFFFFFFFFK..',
+        'KKFFFFFFFFFFEFFK',
+        'KFFFFFFFFFFLLWWK',
+        '.KffffFFFFLLLLK.',
+        '..KFFf....fFFK..',
+        '..KFf......fFK..',
+        '..KK........KK..',
+        '................',
+        '................',
+        '................'
       ],
       barghest: [
-        '..K......K..',
-        '.KBK....KBK.',
-        'KBBBK..KBBBK',
-        'KBRBBKKBBRBK',
-        'KBBBBBBBBBBK',
-        'KWWBBBBBBBBK',
-        '.KDDDDDDDDKK',
-        '.KBBBBBBBBK.',
-        '..KBB..BBK..',
-        '..KBB..BBK..',
-        '..KK....KK..',
-        '............'
+        '..K..........K..',
+        '.KBK........KBK.',
+        'KBBBK..KK..KBBBK',
+        'KBRBBKKKKKKBBRBK',
+        'KBRrBBBBBBBBRrBK',
+        'KBBBBBBBBBBBBBBK',
+        'KKDDDDDDDDDDwWWK',
+        '.KbbbbbbDDDDWWK.',
+        '..KBBBBBBBBBBK..',
+        '..KBBb....bBBK..',
+        '..KBb......bBK..',
+        '..KK........KK..',
+        '................',
+        '................'
       ]
     };
+
+    const HERO_SPRITE_SRCS = {
+      gusbiki: "data:image/png;base64,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",
+      shandriel: "data:image/png;base64,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",
+      heinzel: "data:image/png;base64,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",
+    };
+    const HERO_SPRITE_IMGS = {};
+    Object.entries(HERO_SPRITE_SRCS).forEach(([id, src]) => {
+      const img = new Image();
+      img.src = src;
+      HERO_SPRITE_IMGS[id] = img;
+    });
+
+    function drawHeroImageSprite(ctx, img, x, y, scale, alpha = 1, hitFlash = false) {
+      const dw = Math.round(img.naturalWidth * scale);
+      const dh = Math.round(img.naturalHeight * scale);
+      const dx = Math.round(x - dw / 2);
+      const dy = Math.round(y - dh);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, dx, dy, dw, dh);
+      if (hitFlash) {
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillStyle = 'rgba(255,255,255,0.65)';
+        ctx.fillRect(dx, dy, dw, dh);
+      }
+      ctx.restore();
+      return dh;
+    }
 
     function drawPixelSprite(ctx, matrix, palette, x, y, scale, flipX = false, alpha = 1, tint = null) {
       ctx.save();
@@ -641,6 +775,7 @@
       { id: 'none', sem: 'NONE', label: '（無條件2 / 略過）' },
       { id: 'always', sem: 'HARD', label: '[限] 無條件（總是執行）' },
       { id: 'ally_hp_lt_70', sem: 'HARD', label: '[限] 我方任意 HP < 70%' },
+      { id: 'ally_hp_lt_50', sem: 'HARD', label: '[限] 任一隊友 HP < 50%' },
       { id: 'ally_hp_lt_45', sem: 'HARD', label: '[限] 我方任意 HP < 45%' },
       { id: 'ally_front_hp_lt_60', sem: 'HARD', label: '[限] 我方前排 HP < 60%' },
       { id: 'ally_dead', sem: 'HARD', label: '[限] 我方有陣亡隊友' },
@@ -1212,6 +1347,7 @@
       const aliveEnemies = enemies.filter(e => e.hp > 0);
       switch (condId) {
         case 'ally_hp_lt_70': return aliveAllies.some(a => a.hp / a.maxHp < 0.70);
+        case 'ally_hp_lt_50': return aliveAllies.some(a => a.hp / a.maxHp < 0.50);
         case 'ally_hp_lt_45': return aliveAllies.some(a => a.hp / a.maxHp < 0.45);
         case 'ally_front_hp_lt_60': {
           const f = aliveAllies.filter(a => a.row === 'front');
@@ -1979,7 +2115,7 @@
         ctx.fillRect(px, py, 4, 2);
       }
 
-      const pixelScale = w < 500 ? 2.4 : 2.8;
+      const pixelScale = w < 500 ? 1.9 : 2.2;
 
       // Row Guides
       const drawRowGuide = (xPos, label, color) => {
@@ -2016,15 +2152,26 @@
           ctx.fillStyle = 'rgba(0,0,0,0.35)';
           ctx.fillRect(Math.round(pos.x - 12), Math.round(pos.y - 2), 24, 5);
 
+          const hImg = HERO_SPRITE_IMGS[hero.id];
+          const imgReady = hImg && hImg.complete && hImg.naturalWidth > 0;
+          const imgScale = w < 500 ? 1.2 : 1.4;
           if (hero.hp > 0) {
-            if (hero.mirrorStacks > 0) {
-              drawPixelSprite(ctx, SPRITES[hero.sprite], PALETTES[hero.sprite], pos.x - 14, pos.y - bob - 3, pixelScale, false, 0.4);
+            let spriteH = 16 * pixelScale;
+            if (imgReady) {
+              if (hero.mirrorStacks > 0) {
+                drawHeroImageSprite(ctx, hImg, pos.x - 14, pos.y - bob - 3, imgScale, 0.4, false);
+              }
+              spriteH = drawHeroImageSprite(ctx, hImg, pos.x, pos.y - bob, imgScale, 1, hero.hitFlash > 0);
+            } else {
+              if (hero.mirrorStacks > 0) {
+                drawPixelSprite(ctx, SPRITES[hero.sprite], PALETTES[hero.sprite], pos.x - 14, pos.y - bob - 3, pixelScale, false, 0.4);
+              }
+              drawPixelSprite(ctx, SPRITES[hero.sprite], PALETTES[hero.sprite], pos.x, pos.y - bob, pixelScale, false, 1, hero.hitFlash > 0 ? '#ffffff' : null);
             }
-            drawPixelSprite(ctx, SPRITES[hero.sprite], PALETTES[hero.sprite], pos.x, pos.y - bob, pixelScale, false, 1, hero.hitFlash > 0 ? '#ffffff' : null);
 
             const barW = 30;
             const bx = Math.round(pos.x - barW / 2);
-            const by = Math.round(pos.y - 14 * pixelScale - 10);
+            const by = Math.round(pos.y - spriteH - 8);
             ctx.fillStyle = '#0f172a';
             ctx.fillRect(bx - 1, by - 1, barW + 2, 7);
             ctx.fillStyle = '#22c55e';
@@ -2039,7 +2186,11 @@
               ctx.fillText('🎯集火', Math.round(pos.x), by - 4);
             }
           } else {
-            drawPixelSprite(ctx, SPRITES[hero.sprite], PALETTES[hero.sprite], pos.x, pos.y, pixelScale, false, 0.25);
+            if (imgReady) {
+              drawHeroImageSprite(ctx, hImg, pos.x, pos.y, imgScale, 0.28, false);
+            } else {
+              drawPixelSprite(ctx, SPRITES[hero.sprite], PALETTES[hero.sprite], pos.x, pos.y, pixelScale, false, 0.25);
+            }
           }
         } else {
           const enemy = unit;
@@ -2052,7 +2203,7 @@
 
           const barW = enemy.isBoss ? 48 : 30;
           const bx = Math.round(pos.x - barW / 2);
-          const by = Math.round(pos.y - 12 * eScale - 10);
+          const by = Math.round(pos.y - 13 * eScale - 10);
           ctx.fillStyle = '#0f172a';
           ctx.fillRect(bx - 1, by - 1, barW + 2, 7);
           ctx.fillStyle = '#ef4444';
@@ -2215,6 +2366,72 @@
       });
     }
 
+    function findTacticDeadlock(heroId, rules) {
+      const tpl = HERO_TEMPLATES[heroId];
+      for (let i = 0; i < rules.length; i++) {
+        const r = rules[i];
+        if (!r.enabled || !hasSkill(heroId, r.skill)) continue;
+        const sDef = tpl.skills.find(x => x.id === r.skill);
+        if (!sDef || sDef.type !== 'active' || (sDef.mpCost || 0) > 0) continue;
+        const c1 = r.cond1 || 'always';
+        const c2 = r.cond2 || 'none';
+        const c1Soft = (CONDITIONS.find(c => c.id === c1)?.sem !== 'HARD') || c1 === 'always';
+        const c2Soft = (CONDITIONS.find(c => c.id === c2)?.sem !== 'HARD') || c2 === 'always';
+        if (c1Soft && c2Soft && i < rules.length - 1) {
+          const hasActiveBelow = rules.slice(i + 1).some(nr => nr.enabled);
+          if (hasActiveBelow) return i + 1;
+        }
+      }
+      return -1;
+    }
+
+    function autoAddLearnedSkillToTactics(heroId, sid) {
+      const tpl = HERO_TEMPLATES[heroId];
+      const sDef = tpl.skills.find(x => x.id === sid);
+      if (!sDef || sDef.type === 'passive') return { added: false, reason: 'passive' };
+      const sName = sDef.name.split('（')[0];
+      const tObj = state.tactics[heroId];
+
+      if (sDef.type === 'guard') {
+        if (tObj.reaction.length >= 4) {
+          return { added: false, reason: 'full', msg: `⚠ ${tpl.name} 的反應戰術已達上限，請手動整理後加入【${sName}】。` };
+        }
+        tObj.reaction.unshift({ enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: sid });
+        return { added: true, msg: `${sName} 已自動加入 ${tpl.name} 的反應戰術，可到戰術編排調整` };
+      }
+
+      if (tObj.active.length >= 8) {
+        return { added: false, reason: 'full', msg: `⚠ ${tpl.name} 的戰術已達 8 行上限，請手動整理後加入【${sName}】。` };
+      }
+
+      // Determine smart default condition by skill category
+      const isHeal = ['bard_heal_song', 'herb_mist', 'herb_revive'].includes(sid);
+      const isAoeOrHigh = ['mage_barrage', 'mage_arcane_burst', 'bard_charm_finale', 'herb_curse_spread'].includes(sid);
+      const isCurse = ['herb_curse_atk', 'herb_curse_spd', 'herb_twin_curse', 'bard_confuse', 'bard_trance'].includes(sid);
+
+      const defCond = isHeal ? 'ally_hp_lt_50'
+        : isAoeOrHigh ? 'enemies_ge_3'
+        : isCurse ? 'enemy_not_cursed'
+        : 'always';
+
+      const newRule = { enabled: true, cond1: defCond, cond2: 'none', skill: sid };
+      // Insert right before the fallback basic attack row (or before the last row)
+      let insertAt = tObj.active.findIndex(r => {
+        const rs = tpl.skills.find(x => x.id === r.skill);
+        return (r.cond1 === 'always' && (!r.cond2 || r.cond2 === 'none') && rs && (rs.mpCost || 0) === 0);
+      });
+      if (insertAt === -1) insertAt = Math.max(0, tObj.active.length - 1);
+
+      const testRules = [...tObj.active];
+      testRules.splice(insertAt, 0, newRule);
+      if (findTacticDeadlock(heroId, testRules) !== -1) {
+        return { added: false, reason: 'deadlock', msg: `⚠ 自動加入【${sName}】會造成永不觸發警告，請手動至戰術編排加入。` };
+      }
+
+      tObj.active = testRules;
+      return { added: true, msg: `${sName} 已自動加入 ${tpl.name} 的戰術，可到戰術編排調整` };
+    }
+
     function renderTacticsEditor() {
       renderHeroSelectorButtons('charSelector', () => { renderTacticsEditor(); renderSkillTree(); });
 
@@ -2257,22 +2474,7 @@
       const rules = tacObj.active;
       const reactRules = tacObj.reaction;
 
-      // Static Priority Inversion Check (UO Spec 5.2)
-      let shadowIdx = -1;
-      for (let i = 0; i < rules.length; i++) {
-        const r = rules[i];
-        if (!r.enabled || !hasSkill(tpl.id, r.skill)) continue;
-        const sDef = tpl.skills.find(x => x.id === r.skill);
-        if (!sDef || sDef.type !== 'active' || (sDef.mpCost || 0) > 0) continue;
-        const c1 = r.cond1 || 'always';
-        const c2 = r.cond2 || 'none';
-        const c1Soft = (CONDITIONS.find(c => c.id === c1)?.sem !== 'HARD') || c1 === 'always';
-        const c2Soft = (CONDITIONS.find(c => c.id === c2)?.sem !== 'HARD') || c2 === 'always';
-        if (c1Soft && c2Soft && i < rules.length - 1) {
-          const hasActiveBelow = rules.slice(i + 1).some(nr => nr.enabled);
-          if (hasActiveBelow) { shadowIdx = i + 1; break; }
-        }
-      }
+      const shadowIdx = findTacticDeadlock(tpl.id, rules);
       const warnEl = document.getElementById('tacticWarning');
       if (shadowIdx !== -1) {
         warnEl.textContent = `⚠ 死鎖提醒：第 #${shadowIdx} 條主動戰術沒有硬性限制且不耗 MP，位於其下方的戰術可能永遠不會被執行！`;
@@ -2382,23 +2584,12 @@
           if (getAvailableSp(heroId) <= 0) return;
           state.learnedSkills[heroId].push(sid);
           const sDef = tpl.skills.find(x => x.id === sid);
-          if (sDef && sDef.type !== 'passive') {
-            const tObj = state.tactics[heroId];
-            if (sDef.type === 'guard') {
-              tObj.reaction.unshift({ enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: sid });
-            } else if (tObj.active.length < 8) {
-              const defCond = sid.includes('heal') || sid.includes('mist') ? 'ally_hp_lt_70'
-                : sid.includes('revive') ? 'ally_dead'
-                : sid.includes('mirror') ? 'self_no_mirror'
-                : sid.includes('barrage') || sid.includes('burst') ? 'enemies_ge_2'
-                : sid.includes('curse_atk') ? 'enemy_front_no_atk_down'
-                : sid.includes('curse_spd') ? 'enemy_back_no_spd_down'
-                : 'prio_shaman';
-              const insertAt = Math.max(0, tObj.active.length - 1);
-              tObj.active.splice(insertAt, 0, { enabled: true, cond1: defCond, cond2: 'none', skill: sid });
-            }
+          const autoRes = autoAddLearnedSkillToTactics(heroId, sid);
+          if (autoRes.added) {
             document.getElementById('tabNewTacBadge').classList.remove('hidden');
-            showToast(`✨ 習得【${sDef.name.split('（')[0]}】並已自動排入戰術！`);
+            showToast(autoRes.msg);
+          } else if (autoRes.msg) {
+            showToast(autoRes.msg);
           }
           refreshHeroScaledStats();
           SFX.play('magic');
@@ -2411,28 +2602,36 @@
       });
     }
 
+    function getUpgradeCost(u, lv) {
+      return Math.round(u.baseCost * Math.pow(u.scale, lv));
+    }
+
     function renderCampUpgrades() {
       const grid = document.getElementById('campUpgradeGrid');
       grid.innerHTML = CAMP_UPGRADES_DEF.map(u => {
         const lv = state.campLevels[u.id] || 0;
-        const cost = Math.round(u.baseCost * Math.pow(u.scale, lv));
-        const canBuy = state.gold >= cost;
+        const isMax = u.maxLv && lv >= u.maxLv;
+        const cost = getUpgradeCost(u, lv);
+        const nextCost = getUpgradeCost(u, lv + 1);
+        const canBuy = !isMax && state.gold >= cost;
         return `
           <div class="bg-[#101520] border border-[#273248] rounded p-2.5 flex flex-col justify-between gap-2">
             <div>
               <div class="flex items-center justify-between text-xs font-bold">
                 <span class="text-slate-100">${u.name}</span>
-                ${u.instant ? '' : `<span class="text-amber-300 font-mono">Lv.${lv}</span>`}
+                ${u.instant ? '' : `<span class="text-amber-300 font-mono">Lv.${lv}${u.maxLv ? `/${u.maxLv}` : ''}</span>`}
               </div>
               <p class="text-[11px] text-slate-400 mt-1">${u.desc}</p>
             </div>
-            <div class="text-[10px] font-mono text-slate-400 flex justify-between">
-              <span>目前：<span class="text-amber-300">${cost} 金</span></span>
-              <span>下次：${Math.round(u.baseCost * Math.pow(u.scale, lv + 1))} 金</span>
-            </div>
-            <button data-id="${u.id}" class="camp-buy-btn pixel-btn w-full py-1 rounded text-xs font-bold ${canBuy ? 'bg-amber-600/80 hover:bg-amber-500 text-white border-amber-400' : 'bg-[#192030] text-slate-500'}" ${canBuy ? '' : 'disabled'}>
-              購買（${cost} 金幣）
-            </button>
+            ${isMax
+              ? `<div class="text-[11px] font-bold text-emerald-400 text-center py-1">已達上限</div>`
+              : `<div class="text-[10px] font-mono text-slate-400 flex justify-between">
+                   <span>目前：<span class="text-amber-300">${cost} 金</span></span>
+                   <span>下次 ${nextCost} 金</span>
+                 </div>
+                 <button data-id="${u.id}" class="camp-buy-btn pixel-btn w-full py-1 rounded text-xs font-bold ${canBuy ? 'bg-amber-600/80 hover:bg-amber-500 text-white border-amber-400' : 'bg-[#192030] text-slate-500'}" ${canBuy ? '' : 'disabled'}>
+                   購買（${cost} 金｜下次 ${nextCost} 金）
+                 </button>`}
           </div>
         `;
       }).join('');
@@ -2462,24 +2661,28 @@
       const grid = document.getElementById('altarUpgradeGrid');
       grid.innerHTML = ALTAR_UPGRADES_DEF.map(u => {
         const lv = state.altarLevels[u.id] || 0;
-        const cost = Math.round(u.baseCost * Math.pow(u.scale, lv));
-        const canBuy = state.shards >= cost;
+        const isMax = u.maxLv && lv >= u.maxLv;
+        const cost = getUpgradeCost(u, lv);
+        const nextCost = getUpgradeCost(u, lv + 1);
+        const canBuy = !isMax && state.shards >= cost;
         return `
           <div class="bg-[#101520] border border-purple-800/40 rounded p-2.5 flex flex-col justify-between gap-2">
             <div>
               <div class="flex items-center justify-between text-xs font-bold">
                 <span class="text-purple-200">${u.name}</span>
-                <span class="text-purple-400 font-mono">Lv.${lv}</span>
+                <span class="text-purple-400 font-mono">Lv.${lv}${u.maxLv ? `/${u.maxLv}` : ''}</span>
               </div>
               <p class="text-[11px] text-slate-400 mt-1">${u.desc}</p>
             </div>
-            <div class="text-[10px] font-mono text-slate-400 flex justify-between">
-              <span>目前：<span class="text-purple-300">${cost} 星塵</span></span>
-              <span>下次：${Math.round(u.baseCost * Math.pow(u.scale, lv + 1))} 星塵</span>
-            </div>
-            <button data-id="${u.id}" class="altar-buy-btn pixel-btn w-full py-1 rounded text-xs font-bold ${canBuy ? 'bg-purple-600/85 hover:bg-purple-500 text-white border-purple-400' : 'bg-[#192030] text-slate-500'}" ${canBuy ? '' : 'disabled'}>
-              強化（${cost} 星塵）
-            </button>
+            ${isMax
+              ? `<div class="text-[11px] font-bold text-emerald-400 text-center py-1">已達上限</div>`
+              : `<div class="text-[10px] font-mono text-slate-400 flex justify-between">
+                   <span>目前：<span class="text-purple-300">${cost} 星塵</span></span>
+                   <span>下次 ${nextCost} 星塵</span>
+                 </div>
+                 <button data-id="${u.id}" class="altar-buy-btn pixel-btn w-full py-1 rounded text-xs font-bold ${canBuy ? 'bg-purple-600/85 hover:bg-purple-500 text-white border-purple-400' : 'bg-[#192030] text-slate-500'}" ${canBuy ? '' : 'disabled'}>
+                   強化（${cost} 星塵｜下次 ${nextCost} 星塵）
+                 </button>`}
           </div>
         `;
       }).join('');
@@ -2601,6 +2804,9 @@
         saveModal.classList.remove('hidden');
       });
       document.getElementById('btnSaveClose').addEventListener('click', () => saveModal.classList.add('hidden'));
+      const changelogModal = document.getElementById('changelogModal');
+      document.getElementById('btnChangelog').addEventListener('click', () => changelogModal.classList.remove('hidden'));
+      document.getElementById('btnChangelogClose').addEventListener('click', () => changelogModal.classList.add('hidden'));
       document.getElementById('btnSaveLocal').addEventListener('click', () => {
         saveProgress();
         showToast('💾 進度已儲存至瀏覽器！');
