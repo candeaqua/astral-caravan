@@ -65,7 +65,7 @@
       <div class="bg-[#192030] border border-[#2f3c57] rounded px-2 py-1 flex items-center gap-1">
         <span class="text-slate-400">波次</span>
         <span id="uiWave" class="font-bold text-emerald-300 font-mono">1</span>
-        <span class="text-slate-500">/ 最高 <span id="uiBestWave" class="text-slate-300 font-mono">1</span></span>
+        <span class="text-slate-500" title="已抵達之最高波次">/ 最高(抵達) <span id="uiBestWave" class="text-slate-300 font-mono">1</span></span>
       </div>
       <div class="bg-[#192030] border border-teal-500/50 rounded px-2 py-1 flex items-center gap-1" title="全隊野外尚未入帳的經驗總和（回營地或擊敗Boss入帳；全滅失去一半）">
         <span class="text-teal-300">✦</span>
@@ -89,6 +89,7 @@
       <button id="btnPause" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-slate-200 text-xs font-bold px-2 py-1 rounded">暫停</button>
       <button id="btnAutoRetry" class="pixel-btn bg-emerald-900/60 hover:bg-emerald-800/70 text-emerald-300 border-emerald-600/60 text-xs font-bold px-2 py-1 rounded">自動輪迴: 開</button>
       <button id="btnAutoCampDeath" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-slate-400 text-xs font-bold px-2 py-1 rounded" title="戰鬥結束若有人陣亡，自動返回營地休整">陣亡回營: 關</button>
+      <button id="btnSaveMgr" class="pixel-btn bg-indigo-900/70 hover:bg-indigo-800 text-indigo-200 border-indigo-500/50 text-xs font-bold px-2 py-1 rounded" title="手動存檔 / 匯出與匯入存檔碼">💾 存檔</button>
       <button id="btnMute" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-slate-300 text-xs px-2 py-1 rounded" title="音效開關">🔊</button>
     </div>
   </header>
@@ -152,6 +153,30 @@
           </div>
         </div>
 
+        <!-- Save / Load Modal -->
+        <div id="saveModal" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 z-30">
+          <div class="pixel-panel rounded-lg max-w-md w-full p-4 space-y-3 border-indigo-400/70">
+            <div class="flex items-center justify-between">
+              <span class="text-indigo-300 font-bold text-base">💾 遠征存檔管理</span>
+              <button id="btnSaveClose" class="text-slate-400 hover:text-white text-sm font-bold px-2">✕</button>
+            </div>
+            <p class="text-[11px] text-slate-300">遊戲會自動存檔於瀏覽器；若跨裝置遊玩或擔心環境清除暫存，可複製「存檔碼」或下載存檔檔備份。</p>
+            <div class="flex flex-wrap gap-1.5">
+              <button id="btnSaveLocal" class="pixel-btn bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded">💾 立即存檔</button>
+              <button id="btnExportCode" class="pixel-btn bg-indigo-700 hover:bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded">📋 產生並複製存檔碼</button>
+              <button id="btnDownloadSave" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-slate-200 text-xs font-bold px-3 py-1.5 rounded">⬇ 下載 .json</button>
+            </div>
+            <div class="space-y-1">
+              <label class="text-[11px] text-slate-400 block">存檔碼（可貼上舊存檔碼後按「讀取存檔碼」）：</label>
+              <textarea id="saveCodeInput" rows="3" class="w-full bg-[#0d111a] border border-[#2f3c57] rounded p-2 text-[11px] font-mono text-teal-200" placeholder="點擊「產生存檔碼」或貼上存檔碼..."></textarea>
+              <div class="flex items-center justify-between gap-2 pt-1">
+                <button id="btnImportCode" class="pixel-btn bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded">📥 讀取存檔碼</button>
+                <button id="btnResetSave" class="pixel-btn bg-rose-950/70 hover:bg-rose-900 border-rose-700 text-rose-300 text-xs px-2.5 py-1 rounded">🗑 清除存檔重玩</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Roguelike Wipe / Summary Overlay -->
         <div id="wipeOverlay" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 z-10">
           <div class="pixel-panel rounded-lg max-w-md w-full p-4 text-center space-y-3 border-rose-500/60">
@@ -186,7 +211,7 @@
     <section class="pixel-panel rounded-lg flex-1 flex flex-col overflow-hidden">
       <div class="flex flex-wrap items-center justify-between border-b-2 border-[#273248] bg-[#111622] px-2 pt-2 gap-1">
         <div class="flex flex-wrap items-center gap-1">
-          <button data-tab="tactics" class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t border-t-2 border-x-2 border-[#3a4866] bg-[#141a26] text-amber-300">⚔ 戰術編排</button>
+          <button data-tab="tactics" class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t border-t-2 border-x-2 border-[#3a4866] bg-[#141a26] text-amber-300">⚔ 戰術編排 <span id="tabNewTacBadge" class="hidden ml-1 bg-amber-500 text-slate-950 text-[10px] px-1 rounded font-bold">新</span></button>
           <button data-tab="skills" class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t border-t-2 border-x-2 border-transparent text-slate-400 hover:text-slate-200">🌳 技能樹 <span id="tabSpBadge" class="hidden ml-1 bg-emerald-600 text-white text-[10px] px-1.5 rounded-full font-mono">0</span></button>
           <button data-tab="camp" class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t border-t-2 border-x-2 border-transparent text-slate-400 hover:text-slate-200">⛺ 營地補給 (金幣)</button>
           <button data-tab="altar" class="tab-btn px-3 py-1.5 text-xs font-bold rounded-t border-t-2 border-x-2 border-transparent text-slate-400 hover:text-slate-200">✦ 星塵祭壇 (永久)</button>
@@ -201,17 +226,32 @@
       <div id="tab-tactics" class="tab-pane p-3 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div id="charSelector" class="flex flex-wrap gap-1.5"></div>
-          <div class="flex items-center gap-2">
-            <button id="btnAutoOptimize" class="pixel-btn bg-amber-600/85 hover:bg-amber-500 text-white text-xs px-2.5 py-1 rounded font-bold" title="依已學技能自動排定最佳不死鎖戰術">✨ 一鍵最佳化</button>
-            <button id="btnAddTactic" class="pixel-btn bg-indigo-700/80 hover:bg-indigo-600 text-white text-xs px-2.5 py-1 rounded font-bold">+ 新增戰術列</button>
-            <button id="btnResetTactics" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-slate-300 text-xs px-2.5 py-1 rounded">重置預設戰術</button>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button id="btnAutoOptimize" class="pixel-btn bg-amber-600/85 hover:bg-amber-500 text-white text-xs px-2 py-1 rounded font-bold" title="依已學技能自動排定最佳不死鎖戰術">✨ 一鍵最佳化</button>
+            <button id="btnTplShaman" class="pixel-btn bg-teal-800/80 hover:bg-teal-700 text-teal-100 text-[11px] px-2 py-1 rounded font-bold">範本：先打薩滿</button>
+            <button id="btnTplAoe" class="pixel-btn bg-sky-800/80 hover:bg-sky-700 text-sky-100 text-[11px] px-2 py-1 rounded font-bold">範本：人多才放大招</button>
+            <button id="btnTplHeal" class="pixel-btn bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 text-[11px] px-2 py-1 rounded font-bold">範本：先補最殘的</button>
+            <button id="btnAddTactic" class="pixel-btn bg-indigo-700/80 hover:bg-indigo-600 text-white text-xs px-2 py-1 rounded font-bold">+ 新增主動列</button>
+            <button id="btnResetTactics" class="pixel-btn bg-[#20283d] hover:bg-[#2a3550] text-slate-300 text-xs px-2 py-1 rounded">重置預設</button>
           </div>
         </div>
 
         <div id="charInfoBanner" class="bg-[#101520] border border-[#273248] rounded p-2.5 text-xs flex flex-wrap items-center justify-between gap-2"></div>
         <div id="tacticWarning" class="hidden bg-amber-950/60 border border-amber-500/60 text-amber-200 text-xs rounded p-2"></div>
-        <div class="space-y-1.5" id="tacticList"></div>
-        <p class="text-[11px] text-slate-400">提示：只有已解鎖或於「技能樹」習得的技能才能排入戰術；由上而下檢查條件並執行第一個符合的技能。</p>
+        <div class="space-y-1.5">
+          <div class="text-xs font-bold text-amber-300 flex items-center justify-between">
+            <span>⚔ 主動戰術清單（輪到自己行動時由上而下檢查，上限 8 行）</span>
+          </div>
+          <div class="space-y-1.5" id="tacticList"></div>
+        </div>
+        <div class="space-y-1.5 pt-2 border-t border-[#273248]">
+          <div class="text-xs font-bold text-sky-300 flex items-center justify-between">
+            <span>🛡 反應／守護戰術（獨立觸發：隊友受擊時檢查）</span>
+            <button id="btnAddReaction" class="pixel-btn bg-sky-800/80 hover:bg-sky-700 text-white text-[11px] px-2 py-0.5 rounded font-bold">+ 新增反應列</button>
+          </div>
+          <div class="space-y-1.5" id="reactionList"></div>
+        </div>
+        <p class="text-[11px] text-slate-400">提示：[限] 為強限制，不成立則跳過該行；[優先] 為軟優先，無符合目標時改選其他合法目標照常施放。</p>
       </div>
 
       <!-- Tab: Skill Trees -->
@@ -387,6 +427,9 @@
       warg_rider: {
         '.': null, 'K': '#14171f', 'F': '#4b5563', 'L': '#7d8899', 'G': '#6ab04c', 'R': '#b93829', 'W': '#dce4ed'
       },
+      hobgoblin: {
+        '.': null, 'K': '#141115', 'O': '#c85a32', 'D': '#8f391d', 'A': '#64748b', 'M': '#cbd5e1', 'Y': '#fbbf24'
+      },
       barghest: {
         '.': null, 'K': '#09090d', 'B': '#1f2029', 'D': '#323442', 'R': '#ff2a3c', 'W': '#e2e8f0'
       }
@@ -539,6 +582,20 @@
         '..KK....KK..',
         '............'
       ],
+      hobgoblin: [
+        '..K......K..',
+        '.KOKOOOOOKOK',
+        '..KOOOOOOOK.',
+        '..KOYKKOYKK.',
+        '..KOOOOOOOK.',
+        'MKAAAAAAAAKM',
+        'MKAAAYYAAAKM',
+        'MKAAAAAAAAKM',
+        '..KDDDDDDDK.',
+        '..KDD...DDK.',
+        '.KKD.....DKK',
+        '............'
+      ],
       barghest: [
         '..K......K..',
         '.KBK....KBK.',
@@ -588,20 +645,49 @@
       { id: 'ally_front_hp_lt_60', sem: 'HARD', label: '[限] 我方前排 HP < 60%' },
       { id: 'ally_dead', sem: 'HARD', label: '[限] 我方有陣亡隊友' },
       { id: 'ally_no_atk_buff', sem: 'HARD', label: '[限] 我方尚無攻擊強化' },
+      { id: 'enemies_ge_2', sem: 'HARD', label: '[限] 敵人數量 ≥ 2' },
+      { id: 'enemies_ge_3', sem: 'HARD', label: '[限] 敵人數量 ≥ 3' },
+      { id: 'enemies_eq_1', sem: 'HARD', label: '[限] 敵人只剩 1 名' },
       { id: 'enemy_front_alive', sem: 'HARD', label: '[限] 敵方前排存活' },
       { id: 'enemy_back_alive', sem: 'HARD', label: '[限] 敵方後排存活' },
+      { id: 'enemy_type_gob_shaman', sem: 'HARD', label: '[限] 場上有哥布林薩滿' },
+      { id: 'enemy_type_warg_rider', sem: 'HARD', label: '[限] 場上有座狼騎兵' },
+      { id: 'enemy_type_warg', sem: 'HARD', label: '[限] 場上有座狼' },
+      { id: 'enemy_type_gob_hammer', sem: 'HARD', label: '[限] 場上有哥布林重錘兵' },
+      { id: 'enemy_type_hobgoblin', sem: 'HARD', label: '[限] 場上有大哥布林 (Hobgoblin)' },
+      { id: 'enemy_type_gob_archer', sem: 'HARD', label: '[限] 場上有哥布林弓手' },
+      { id: 'enemy_type_barghest', sem: 'HARD', label: '[限] 場上有首領 (Boss)' },
+      { id: 'enemy_cursed', sem: 'HARD', label: '[限] 敵人已被詛咒（降攻/降速）' },
+      { id: 'enemy_not_cursed', sem: 'HARD', label: '[限] 敵人未被詛咒' },
+      { id: 'enemy_cced', sem: 'HARD', label: '[限] 敵人混亂／恍惚中' },
       { id: 'enemy_not_cc', sem: 'HARD', label: '[限] 敵人未受場控' },
       { id: 'enemy_front_no_atk_down', sem: 'HARD', label: '[限] 敵方前排未降攻' },
       { id: 'enemy_back_no_spd_down', sem: 'HARD', label: '[限] 敵方後排未降速' },
-      { id: 'enemies_ge_2', sem: 'HARD', label: '[限] 敵人數量 ≥ 2' },
       { id: 'self_no_mirror', sem: 'HARD', label: '[限] 自身尚無鏡影術' },
       { id: 'self_hp_ge_25', sem: 'HARD', label: '[限] 自身 HP ≥ 25%' },
       { id: 'self_mp_ge_30', sem: 'HARD', label: '[限] 自身 MP ≥ 30%' },
-      { id: 'prio_back', sem: 'SOFT', label: '[優先] 敵方後排（無則改打前排）' },
+      { id: 'prio_shaman', sem: 'SOFT', label: '[優先] 哥布林薩滿' },
+      { id: 'prio_warg_rider', sem: 'SOFT', label: '[優先] 座狼騎兵' },
+      { id: 'prio_warg', sem: 'SOFT', label: '[優先] 座狼' },
+      { id: 'prio_gob_hammer', sem: 'SOFT', label: '[優先] 哥布林重錘兵' },
+      { id: 'prio_hobgoblin', sem: 'SOFT', label: '[優先] 大哥布林 (Hobgoblin)' },
+      { id: 'prio_gob_archer', sem: 'SOFT', label: '[優先] 哥布林弓手' },
+      { id: 'prio_boss', sem: 'SOFT', label: '[優先] 首領 (Boss)' },
+      { id: 'prio_back', sem: 'SOFT', label: '[優先] 敵方後排' },
       { id: 'prio_front', sem: 'SOFT', label: '[優先] 敵方前排' },
       { id: 'prio_lowest_hp', sem: 'SOFT', label: '[優先] 最低 HP 目標' },
       { id: 'prio_highest_hp', sem: 'SOFT', label: '[優先] 最高 HP 目標' },
-      { id: 'prio_shaman', sem: 'SOFT', label: '[優先] 哥布林薩滿' },
+    ];
+
+    const REACTION_CONDITIONS = [
+      { id: 'none', sem: 'NONE', label: '（無條件2 / 略過）' },
+      { id: 'always', sem: 'HARD', label: '[限] 任意隊友受擊時' },
+      { id: 'self_hp_ge_25', sem: 'HARD', label: '[限] 自身 HP ≥ 25%' },
+      { id: 'react_ally_hp_lt_50', sem: 'HARD', label: '[限] 被攻擊隊友 HP < 50%' },
+      { id: 'react_attacker_boss', sem: 'HARD', label: '[限] 攻擊者是首領 (Boss)' },
+      { id: 'react_ally_gusbiki', sem: 'HARD', label: '[限] 只守護古斯比琪' },
+      { id: 'react_ally_shandriel', sem: 'HARD', label: '[限] 只守護香卓莉爾' },
+      { id: 'react_ally_heinzel', sem: 'HARD', label: '[限] 只守護海茵潔' },
     ];
 
     const HERO_TEMPLATES = {
@@ -639,12 +725,16 @@
           { id: 'bard_pierce_bow', mpCost: 16, name: '穿透箭（武藝系 Lv.5）', type: 'active', branch: '武藝系', reqLv: 5, reqSkill: 'bard_rapid_bow', desc: '高暴擊貫穿箭，造成 1.9 倍傷害' },
           { id: 'bard_dagger_thrust', mpCost: 15, name: '短劍突刺（武藝系 Lv.8）', type: 'active', branch: '武藝系', reqLv: 8, reqSkill: 'bard_pierce_bow', desc: '強力近戰突刺並立即回復 45% 行動條' },
         ],
-        defaultTactics: [
-          { enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: 'bard_guard' },
-          { enabled: true, cond1: 'ally_no_atk_buff', cond2: 'self_mp_ge_30', skill: 'bard_inspire' },
-          { enabled: true, cond1: 'prio_shaman', cond2: 'prio_back', skill: 'bard_bow' },
-          { enabled: true, cond1: 'always', cond2: 'none', skill: 'bard_dagger' },
-        ]
+        defaultTactics: {
+          active: [
+            { enabled: true, cond1: 'ally_no_atk_buff', cond2: 'self_mp_ge_30', skill: 'bard_inspire' },
+            { enabled: true, cond1: 'enemy_back_alive', cond2: 'prio_shaman', skill: 'bard_bow' },
+            { enabled: true, cond1: 'always', cond2: 'none', skill: 'bard_dagger' },
+          ],
+          reaction: [
+            { enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: 'bard_guard' },
+          ]
+        }
       },
       shandriel: {
         id: 'shandriel',
@@ -676,10 +766,13 @@
           { id: 'mage_amp', name: '飛彈增幅（被動·奧術系）', type: 'passive', branch: '奧術系', reqLv: 2, reqSkill: null, desc: '被動：所有飛彈與連彈傷害 +25%' },
           { id: 'mage_blast', mpCost: 22, name: '爆裂飛彈（奧術系 Lv.5）', type: 'active', branch: '奧術系', reqLv: 5, reqSkill: 'mage_amp', desc: '對目標造成 2.0 倍爆炸魔法傷害' },
         ],
-        defaultTactics: [
-          { enabled: true, cond1: 'prio_shaman', cond2: 'prio_lowest_hp', skill: 'mage_missile' },
-          { enabled: true, cond1: 'always', cond2: 'none', skill: 'mage_staff' },
-        ]
+        defaultTactics: {
+          active: [
+            { enabled: true, cond1: 'prio_shaman', cond2: 'prio_lowest_hp', skill: 'mage_missile' },
+            { enabled: true, cond1: 'always', cond2: 'none', skill: 'mage_staff' },
+          ],
+          reaction: []
+        }
       },
       heinzel: {
         id: 'heinzel',
@@ -712,11 +805,15 @@
           // Tree: 守護系
           { id: 'herb_block_plus', name: '格擋強化（被動·守護系）', type: 'passive', branch: '守護系', reqLv: 2, reqSkill: null, desc: '被動：長杖守護減傷 +20%，自身防禦 +4' },
         ],
-        defaultTactics: [
-          { enabled: true, cond1: 'ally_hp_lt_70', cond2: 'none', skill: 'herb_bandage' },
-          { enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: 'herb_guard' },
-          { enabled: true, cond1: 'always', cond2: 'none', skill: 'herb_bonk' },
-        ]
+        defaultTactics: {
+          active: [
+            { enabled: true, cond1: 'ally_hp_lt_70', cond2: 'none', skill: 'herb_bandage' },
+            { enabled: true, cond1: 'always', cond2: 'none', skill: 'herb_bonk' },
+          ],
+          reaction: [
+            { enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: 'herb_guard' },
+          ]
+        }
       }
     };
 
@@ -780,6 +877,7 @@
       projectiles: [],
       floatTexts: [],
       logs: [],
+      focusTargetId: null,
       animTick: 0,
     };
 
@@ -807,49 +905,76 @@
       return (state.learnedSkills[heroId] || []).includes(skillId);
     }
 
+    function buildSavePayload() {
+      return {
+        v: 2,
+        wave: state.wave,
+        bestWave: state.bestWave,
+        gold: state.gold,
+        shards: state.shards,
+        phase: state.phase === 'wipe' ? 'camp' : state.phase,
+        campLevels: state.campLevels,
+        heroProg: state.heroProg,
+        altarLevels: state.altarLevels,
+        learnedSkills: state.learnedSkills,
+        heroRows: state.heroRows,
+        tactics: state.tactics,
+        autoRetry: state.autoRetry,
+        autoCampOnDeath: state.autoCampOnDeath,
+        heroVitals: (state.heroes || []).map(h => ({ id: h.id, hp: Math.ceil(h.hp), mp: Math.floor(h.mp) }))
+      };
+    }
+
+    function applySavePayload(data) {
+      if (!data || typeof data !== 'object') return false;
+      if (typeof data.wave === 'number') state.wave = Math.max(1, data.wave);
+      if (typeof data.bestWave === 'number') state.bestWave = Math.max(1, data.bestWave);
+      if (typeof data.gold === 'number') state.gold = Math.max(0, data.gold);
+      if (typeof data.shards === 'number') state.shards = Math.max(0, data.shards);
+      if (data.phase === 'camp' || data.phase === 'marching' || data.phase === 'combat') state.phase = data.phase === 'combat' ? 'marching' : data.phase;
+      if (data.campLevels) state.campLevels = { ...state.campLevels, ...data.campLevels };
+      if (data.heroProg) state.heroProg = { ...state.heroProg, ...data.heroProg };
+      if (data.altarLevels) state.altarLevels = { ...state.altarLevels, ...data.altarLevels };
+      if (data.learnedSkills) state.learnedSkills = { ...state.learnedSkills, ...data.learnedSkills };
+      if (data.heroRows) state.heroRows = { ...state.heroRows, ...data.heroRows };
+      if (data.tactics) {
+        ['gusbiki', 'shandriel', 'heinzel'].forEach(id => {
+          const t = data.tactics[id];
+          if (t && Array.isArray(t.active)) {
+            state.tactics[id] = {
+              active: t.active.map(r => ({ enabled: r.enabled !== false, cond1: r.cond1 || 'always', cond2: r.cond2 || 'none', skill: r.skill })),
+              reaction: Array.isArray(t.reaction) ? t.reaction.map(r => ({ enabled: r.enabled !== false, cond1: r.cond1 || 'always', cond2: r.cond2 || 'none', skill: r.skill })) : []
+            };
+          }
+        });
+      }
+      if (typeof data.autoRetry === 'boolean') state.autoRetry = data.autoRetry;
+      if (typeof data.autoCampOnDeath === 'boolean') state.autoCampOnDeath = data.autoCampOnDeath;
+      state.heroes = createHeroes();
+      if (Array.isArray(data.heroVitals)) {
+        data.heroVitals.forEach(v => {
+          const h = state.heroes.find(x => x.id === v.id);
+          if (h) {
+            h.hp = Math.min(h.maxHp, Math.max(0, v.hp));
+            h.mp = Math.min(h.maxMp, Math.max(0, v.mp));
+          }
+        });
+      }
+      return true;
+    }
+
     function saveProgress() {
       try {
-        const data = {
-          bestWave: state.bestWave,
-          shards: state.shards,
-          heroProg: state.heroProg,
-          altarLevels: state.altarLevels,
-          learnedSkills: state.learnedSkills,
-          heroRows: state.heroRows,
-          tactics: state.tactics,
-          autoRetry: state.autoRetry,
-          autoCampOnDeath: state.autoCampOnDeath
-        };
-        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+        localStorage.setItem(SAVE_KEY, JSON.stringify(buildSavePayload()));
       } catch (_) {}
     }
 
     function loadProgress() {
       try {
         const raw = localStorage.getItem(SAVE_KEY);
-        if (!raw) return;
-        const data = JSON.parse(raw);
-        if (typeof data.bestWave === 'number') state.bestWave = data.bestWave;
-        if (typeof data.shards === 'number') state.shards = data.shards;
-        if (data.heroProg) state.heroProg = { ...state.heroProg, ...data.heroProg };
-        if (data.altarLevels) state.altarLevels = { ...state.altarLevels, ...data.altarLevels };
-        if (data.learnedSkills) state.learnedSkills = { ...state.learnedSkills, ...data.learnedSkills };
-        if (data.heroRows) state.heroRows = { ...state.heroRows, ...data.heroRows };
-        if (data.tactics) {
-          ['gusbiki', 'shandriel', 'heinzel'].forEach(id => {
-            if (Array.isArray(data.tactics[id])) {
-              state.tactics[id] = data.tactics[id].map(r => ({
-                enabled: r.enabled !== false,
-                cond1: r.cond1 || r.cond || 'always',
-                cond2: r.cond2 || 'none',
-                skill: r.skill
-              }));
-            }
-          });
-        }
-        if (typeof data.autoRetry === 'boolean') state.autoRetry = data.autoRetry;
-        if (typeof data.autoCampOnDeath === 'boolean') state.autoCampOnDeath = data.autoCampOnDeath;
-      } catch (_) {}
+        if (!raw) return false;
+        return applySavePayload(JSON.parse(raw));
+      } catch (_) { return false; }
     }
 
     function showToast(msg) {
@@ -997,6 +1122,7 @@
       gob_shaman: { name: '哥布林薩滿',   row: 'back',  isRanged: true,  hp: 58, atk: 17, spd: 0.95, xp: 18 },
       warg:       { name: '座狼',         row: 'front', isRanged: false, hp: 70, atk: 17, spd: 1.42, xp: 15 },
       warg_rider: { name: '座狼騎兵',     row: 'front', isRanged: false, hp: 85, atk: 20, spd: 1.38, xp: 20 },
+      hobgoblin:  { name: '大哥布林 Hobgoblin', row: 'front', isRanged: false, hp: 135, atk: 20, spd: 0.92, xp: 26 },
       barghest:   { name: 'Barghest 巴吉斯特', row: 'front', isRanged: false, hp: 260, atk: 28, spd: 1.15, xp: 55, isBoss: true },
     };
 
@@ -1036,8 +1162,8 @@
       }
 
       const frontPool = wave <= 2 ? ['gob_dagger', 'gob_spear']
-        : wave <= 4 ? ['gob_dagger', 'gob_spear', 'warg', 'gob_hammer']
-        : ['gob_spear', 'gob_hammer', 'warg', 'warg_rider'];
+        : wave <= 4 ? ['gob_dagger', 'gob_spear', 'hobgoblin', 'warg']
+        : ['gob_spear', 'hobgoblin', 'gob_hammer', 'warg_rider'];
       const backPool = wave <= 1 ? ['gob_archer'] : ['gob_archer', 'gob_shaman'];
 
       const totalCount = Math.min(4, 1 + Math.floor((wave + 1) / 2));
@@ -1056,10 +1182,32 @@
     // =========================================================================
     // 6. TACTIC EVALUATION & COMBAT LOGIC
     // =========================================================================
+    function filterEnemiesByHardCond(condId, enemies) {
+      if (!condId || condId === 'none' || condId === 'always') return enemies;
+      switch (condId) {
+        case 'enemy_front_alive': return enemies.filter(e => e.row === 'front');
+        case 'enemy_back_alive': return enemies.filter(e => e.row === 'back');
+        case 'enemy_type_gob_shaman': return enemies.filter(e => e.type === 'gob_shaman');
+        case 'enemy_type_warg_rider': return enemies.filter(e => e.type === 'warg_rider');
+        case 'enemy_type_warg': return enemies.filter(e => e.type === 'warg');
+        case 'enemy_type_gob_hammer': return enemies.filter(e => e.type === 'gob_hammer');
+        case 'enemy_type_hobgoblin': return enemies.filter(e => e.type === 'hobgoblin');
+        case 'enemy_type_gob_archer': return enemies.filter(e => e.type === 'gob_archer');
+        case 'enemy_type_barghest': return enemies.filter(e => e.isBoss);
+        case 'enemy_cursed': return enemies.filter(e => e.atkDownTurns > 0 || e.spdDownTurns > 0);
+        case 'enemy_not_cursed': return enemies.filter(e => e.atkDownTurns <= 0 && e.spdDownTurns <= 0);
+        case 'enemy_cced': return enemies.filter(e => e.ccTurns > 0);
+        case 'enemy_not_cc': return enemies.filter(e => e.ccTurns <= 0);
+        case 'enemy_front_no_atk_down': return enemies.filter(e => e.row === 'front' && e.atkDownTurns <= 0);
+        case 'enemy_back_no_spd_down': return enemies.filter(e => e.row === 'back' && e.spdDownTurns <= 0);
+        default: return enemies;
+      }
+    }
+
     function checkSingleCondition(condId, actor, allies, enemies) {
       if (!condId || condId === 'none' || condId === 'always') return true;
       const cDef = CONDITIONS.find(c => c.id === condId);
-      if (cDef && cDef.sem === 'SOFT') return true; // Soft Priority never fails a rule!
+      if (cDef && cDef.sem === 'SOFT') return true;
       const aliveAllies = allies.filter(a => a.hp > 0);
       const aliveEnemies = enemies.filter(e => e.hp > 0);
       switch (condId) {
@@ -1071,49 +1219,45 @@
         }
         case 'ally_dead': return allies.some(a => a.hp <= 0);
         case 'ally_no_atk_buff': return aliveAllies.some(a => a.buffAtkTurns <= 0);
-        case 'enemy_front_alive': return aliveEnemies.some(e => e.row === 'front');
-        case 'enemy_back_alive': return aliveEnemies.some(e => e.row === 'back');
-        case 'enemy_not_cc': return aliveEnemies.some(e => e.ccTurns <= 0);
-        case 'enemy_front_no_atk_down': return aliveEnemies.filter(e => e.row === 'front').some(e => e.atkDownTurns <= 0);
-        case 'enemy_back_no_spd_down': return aliveEnemies.filter(e => e.row === 'back').some(e => e.spdDownTurns <= 0);
         case 'enemies_ge_2': return aliveEnemies.length >= 2;
+        case 'enemies_ge_3': return aliveEnemies.length >= 3;
+        case 'enemies_eq_1': return aliveEnemies.length === 1;
         case 'self_no_mirror': return actor.mirrorStacks <= 0;
         case 'self_hp_ge_25': return (actor.hp / actor.maxHp) >= 0.25;
         case 'self_mp_ge_30': return (actor.mp / actor.maxMp) >= 0.30;
-        default: return false;
+        default:
+          return filterEnemiesByHardCond(condId, aliveEnemies).length > 0;
       }
     }
 
     function checkRuleConditions(rule, actor) {
-      const c1 = rule.cond1 || rule.cond || 'always';
+      const c1 = rule.cond1 || 'always';
       const c2 = rule.cond2 || 'none';
-      return checkSingleCondition(c1, actor, state.heroes, state.enemies)
-          && checkSingleCondition(c2, actor, state.heroes, state.enemies);
+      if (!checkSingleCondition(c1, actor, state.heroes, state.enemies)) return false;
+      if (!checkSingleCondition(c2, actor, state.heroes, state.enemies)) return false;
+      // If both filter enemies, ensure intersection is non-empty!
+      const aliveEnemies = state.enemies.filter(e => e.hp > 0);
+      const f1 = filterEnemiesByHardCond(c1, aliveEnemies);
+      const f2 = filterEnemiesByHardCond(c2, f1);
+      return f2.length > 0;
     }
 
     function pickEnemyBySoftPrio(candidates, softPrios) {
       if (!candidates.length) return null;
-      let list = [...candidates];
-      // Tie-breaking: front row first, then array order
+      const list = [...candidates];
       list.sort((a, b) => {
         for (const p of softPrios) {
-          if (p === 'prio_shaman') {
-            const sa = a.type === 'gob_shaman' ? 0 : 1;
-            const sb = b.type === 'gob_shaman' ? 0 : 1;
-            if (sa !== sb) return sa - sb;
-          } else if (p === 'prio_back') {
-            const ba = a.row === 'back' ? 0 : 1;
-            const bb = b.row === 'back' ? 0 : 1;
-            if (ba !== bb) return ba - bb;
-          } else if (p === 'prio_front') {
-            const fa = a.row === 'front' ? 0 : 1;
-            const fb = b.row === 'front' ? 0 : 1;
-            if (fa !== fb) return fa - fb;
-          } else if (p === 'prio_lowest_hp') {
-            if (a.hp !== b.hp) return a.hp - b.hp;
-          } else if (p === 'prio_highest_hp') {
-            if (a.hp !== b.hp) return b.hp - a.hp;
-          }
+          if (p === 'prio_shaman') { const d = (a.type === 'gob_shaman' ? 0 : 1) - (b.type === 'gob_shaman' ? 0 : 1); if (d) return d; }
+          else if (p === 'prio_warg_rider') { const d = (a.type === 'warg_rider' ? 0 : 1) - (b.type === 'warg_rider' ? 0 : 1); if (d) return d; }
+          else if (p === 'prio_warg') { const d = (a.type === 'warg' ? 0 : 1) - (b.type === 'warg' ? 0 : 1); if (d) return d; }
+          else if (p === 'prio_gob_hammer') { const d = (a.type === 'gob_hammer' ? 0 : 1) - (b.type === 'gob_hammer' ? 0 : 1); if (d) return d; }
+          else if (p === 'prio_hobgoblin') { const d = (a.type === 'hobgoblin' ? 0 : 1) - (b.type === 'hobgoblin' ? 0 : 1); if (d) return d; }
+          else if (p === 'prio_gob_archer') { const d = (a.type === 'gob_archer' ? 0 : 1) - (b.type === 'gob_archer' ? 0 : 1); if (d) return d; }
+          else if (p === 'prio_boss') { const d = (a.isBoss ? 0 : 1) - (b.isBoss ? 0 : 1); if (d) return d; }
+          else if (p === 'prio_back') { const d = (a.row === 'back' ? 0 : 1) - (b.row === 'back' ? 0 : 1); if (d) return d; }
+          else if (p === 'prio_front') { const d = (a.row === 'front' ? 0 : 1) - (b.row === 'front' ? 0 : 1); if (d) return d; }
+          else if (p === 'prio_lowest_hp' && a.hp !== b.hp) return a.hp - b.hp;
+          else if (p === 'prio_highest_hp' && a.hp !== b.hp) return b.hp - a.hp;
         }
         return (a.row === 'front' ? 0 : 1) - (b.row === 'front' ? 0 : 1);
       });
@@ -1121,34 +1265,54 @@
     }
 
     function pickHeroSkill(hero) {
-      const rules = state.tactics[hero.id] || [];
+      const rules = (state.tactics[hero.id] && state.tactics[hero.id].active) || [];
       const tpl = HERO_TEMPLATES[hero.id];
-      for (const r of rules) {
+      for (let i = 0; i < rules.length; i++) {
+        const r = rules[i];
         if (!r.enabled || !hasSkill(hero.id, r.skill)) continue;
         const skillDef = tpl.skills.find(s => s.id === r.skill);
         if (!skillDef || skillDef.type !== 'active') continue;
         if ((skillDef.mpCost || 0) > hero.mp) continue;
         if (checkRuleConditions(r, hero)) {
+          const aliveEnemies = state.enemies.filter(e => e.hp > 0);
+          let hardPool = filterEnemiesByHardCond(r.cond1, aliveEnemies);
+          hardPool = filterEnemiesByHardCond(r.cond2, hardPool);
           const softPrios = [r.cond1, r.cond2].filter(cid => {
             const c = CONDITIONS.find(x => x.id === cid);
             return c && c.sem === 'SOFT';
           });
-          return { skillDef, softPrios };
+          return { skillDef, softPrios, hardPool, ruleIndex: i + 1, cond1: r.cond1, cond2: r.cond2 };
         }
       }
       const fallback = tpl.skills.find(s => s.basic && s.type === 'active' && (s.mpCost || 0) === 0) || tpl.skills[0];
-      return { skillDef: fallback, softPrios: [] };
+      return { skillDef: fallback, softPrios: [], hardPool: state.enemies.filter(e => e.hp > 0), ruleIndex: 0, cond1: 'always', cond2: 'none' };
     }
 
-    function canHeroGuard(hero) {
+    function checkReactionCond(condId, guardian, targetAlly, attacker) {
+      if (!condId || condId === 'none' || condId === 'always') return true;
+      switch (condId) {
+        case 'self_hp_ge_25': return (guardian.hp / guardian.maxHp) >= 0.25;
+        case 'react_ally_hp_lt_50': return (targetAlly.hp / targetAlly.maxHp) < 0.50;
+        case 'react_attacker_boss': return !!(attacker && attacker.isBoss);
+        case 'react_ally_gusbiki': return targetAlly.id === 'gusbiki';
+        case 'react_ally_shandriel': return targetAlly.id === 'shandriel';
+        case 'react_ally_heinzel': return targetAlly.id === 'heinzel';
+        default: return false;
+      }
+    }
+
+    function canHeroGuard(hero, targetAlly, attacker) {
       if (hero.hp <= 0 || hero.tranceTimer > 0) return false;
-      const rules = state.tactics[hero.id] || [];
+      const rules = (state.tactics[hero.id] && state.tactics[hero.id].reaction) || [];
       const tpl = HERO_TEMPLATES[hero.id];
-      for (const r of rules) {
+      for (let i = 0; i < rules.length; i++) {
+        const r = rules[i];
         if (!r.enabled || !hasSkill(hero.id, r.skill)) continue;
         const skillDef = tpl.skills.find(s => s.id === r.skill);
         if (skillDef && skillDef.type === 'guard') {
-          if (checkRuleConditions(r, hero)) return skillDef;
+          if (checkReactionCond(r.cond1, hero, targetAlly, attacker) && checkReactionCond(r.cond2, hero, targetAlly, attacker)) {
+            return { skillDef, ruleIndex: i + 1, cond1: r.cond1, cond2: r.cond2 };
+          }
         }
       }
       return false;
@@ -1192,14 +1356,19 @@
       const aliveAllies = state.heroes.filter(a => a.hp > 0);
       if (aliveEnemies.length === 0) return;
 
-      const { skillDef: skill, softPrios } = pickHeroSkill(hero);
+      // Action start MP regen (+8% maxMp unconditionally)
+      hero.mp = Math.min(hero.maxMp, hero.mp + hero.maxMp * 0.08);
+      const { skillDef: skill, softPrios, hardPool, ruleIndex, cond1, cond2 } = pickHeroSkill(hero);
       const cost = skill.mpCost || 0;
       if (cost > 0) {
         hero.mp = Math.max(0, hero.mp - cost);
       } else {
-        hero.mp = Math.min(hero.maxMp, hero.mp + 5); // Basic 0-MP attacks recover 5 MP!
+        hero.mp = Math.min(hero.maxMp, hero.mp + 6); // Basic 0-MP attack restores 6 MP
       }
       hero.lastSkill = skill.name.split('（')[0];
+      const c1Lbl = (CONDITIONS.find(c => c.id === cond1)?.label || cond1).replace(/^\[.*?\]\s*/, '');
+      const c2Lbl = cond2 && cond2 !== 'none' ? ' & ' + (CONDITIONS.find(c => c.id === cond2)?.label || cond2).replace(/^\[.*?\]\s*/, '') : '';
+      const tacTag = ruleIndex > 0 ? `[主動#${ruleIndex}: ${c1Lbl}${c2Lbl}]` : '[保底]';
       const atkMult = hero.buffAtkTurns > 0 ? (1 + (hero.buffAtkAmt || 0.18)) : 1.0;
       const effectiveAtk = Math.round(hero.atk * atkMult);
       const hPos = getUnitScreenPos(hero, true, canvasW, canvasH);
@@ -1263,8 +1432,9 @@
         }
         SFX.play('heal');
       } else if (skill.id === 'bard_confuse' || skill.id === 'bard_trance') {
-        const unCC = aliveEnemies.filter(e => e.ccTurns <= 0);
-        const target = pickEnemyBySoftPrio(unCC.length ? unCC : aliveEnemies, softPrios.length ? softPrios : ['prio_back']);
+        const poolCC = hardPool.length ? hardPool : aliveEnemies;
+        const unCC = poolCC.filter(e => e.ccTurns <= 0);
+        const target = pickEnemyBySoftPrio(unCC.length ? unCC : poolCC, softPrios.length ? softPrios : ['prio_back']);
         target.ccTurns = skill.id === 'bard_trance' ? 2 : 1;
         const ePos = getUnitScreenPos(target, false, canvasW, canvasH);
         state.projectiles.push({ x: hPos.x + 12, y: hPos.y - 20, tx: ePos.x, ty: ePos.y - 20, color: '#f472b6', speed: 420 });
@@ -1275,7 +1445,8 @@
         SFX.play('magic');
         addLog(`${hero.name} 演奏【魅惑終曲】，全場敵人陷入混亂！`, 'text-pink-300');
       } else if (skill.id === 'bard_bow' || skill.id === 'bard_rapid_bow' || skill.id === 'bard_pierce_bow') {
-        const target = softPrios.length ? pickEnemyBySoftPrio(aliveEnemies, softPrios) : (backEnemies.length ? backEnemies[0] : aliveEnemies[0]);
+        const targetPool = hardPool.length ? hardPool : aliveEnemies;
+        const target = pickEnemyBySoftPrio(targetPool, softPrios.length ? softPrios : ['prio_front']);
         const hits = skill.id === 'bard_rapid_bow' ? 2 : 1;
         const mult = skill.id === 'bard_pierce_bow' ? 1.9 : (skill.id === 'bard_rapid_bow' ? 0.85 : 1.15);
         for (let i = 0; i < hits; i++) {
@@ -1283,6 +1454,7 @@
           const dmg = Math.round(effectiveAtk * mult * (isCrit ? 1.5 : 1.0));
           const ePos = getUnitScreenPos(target, false, canvasW, canvasH);
           state.projectiles.push({ x: hPos.x + 12, y: hPos.y - 20 + i * 6, tx: ePos.x, ty: ePos.y - 20, color: '#fde047', speed: 520 });
+          addLog(`${hero.name} ${tacTag} 對 ${target.name} 施放【${hero.lastSkill}】`, 'text-slate-300');
           applyDamageToEnemy(target, dmg, isCrit ? '暴擊 ' : '', '#fde047', canvasW, canvasH);
         }
         SFX.play('hit');
@@ -1310,12 +1482,14 @@
         }
         SFX.play('magic');
       } else if (skill.id === 'mage_missile' || skill.id === 'mage_twin' || skill.id === 'mage_blast') {
-        const target = softPrios.length ? pickEnemyBySoftPrio(aliveEnemies, softPrios) : (backEnemies.length ? backEnemies[0] : aliveEnemies[0]);
+        const targetPool = hardPool.length ? hardPool : aliveEnemies;
+        const target = pickEnemyBySoftPrio(targetPool, softPrios.length ? softPrios : ['prio_front']);
         const hits = skill.id === 'mage_twin' ? 2 : 1;
         const mult = (skill.id === 'mage_blast' ? 2.0 : (skill.id === 'mage_twin' ? 1.05 : 1.35)) * missileAmp;
         for (let i = 0; i < hits; i++) {
           const ePos = getUnitScreenPos(target, false, canvasW, canvasH);
           state.projectiles.push({ x: hPos.x + 14, y: hPos.y - 22 + i * 7, tx: ePos.x, ty: ePos.y - 20, color: '#c084fc', speed: 500 });
+          addLog(`${hero.name} ${tacTag} 對 ${target.name} 施放【${hero.lastSkill}】`, 'text-purple-300');
           applyDamageToEnemy(target, Math.round(effectiveAtk * mult), skill.id === 'mage_blast' ? '爆裂 ' : '', '#c084fc', canvasW, canvasH);
         }
         SFX.play('magic');
@@ -1444,21 +1618,51 @@
         return;
       }
 
-      // Standard enemy attack (Melee hits Front Row first; Ranged hits any)
+      // Hobgoblin Tactical Command: marks a focus target for all goblins!
+      if (enemy.type === 'hobgoblin') {
+        const currentFocus = aliveHeroes.find(h => h.id === state.focusTargetId);
+        if (!currentFocus) {
+          const sorted = [...aliveHeroes].sort((a, b) => a.hp - b.hp);
+          state.focusTargetId = sorted[0].id;
+          const fPos = getUnitScreenPos(sorted[0], true, canvasW, canvasH);
+          spawnFloatText(fPos.x, fPos.y - 52, '集火目標!', '#f97316');
+          addLog(`大哥布林發出戰吼，指揮哥布林群集火攻擊 ${sorted[0].name}！`, 'text-orange-300 font-bold');
+        }
+      }
+
+      // Enemy Tactics Target Selection
       enemy.dashX = -20;
       const frontHeroes = aliveHeroes.filter(h => h.row === 'front');
-      const pool = (!enemy.isRanged && frontHeroes.length > 0) ? frontHeroes : aliveHeroes;
-      const target = pool[Math.floor(Math.random() * pool.length)];
+      const backHeroes = aliveHeroes.filter(h => h.row === 'back');
+      const hasHob = state.enemies.some(e => e.hp > 0 && e.type === 'hobgoblin');
+      const focusHero = hasHob ? aliveHeroes.find(h => h.id === state.focusTargetId) : null;
+
+      let target = null;
+      if (enemy.type === 'gob_archer') {
+        // Goblin Archer tactic: Prioritize Back Row! (falls back to front if back is empty)
+        const archerPool = backHeroes.length > 0 ? backHeroes : aliveHeroes;
+        target = (focusHero && archerPool.includes(focusHero)) ? focusHero : archerPool[Math.floor(Math.random() * archerPool.length)];
+      } else {
+        const meleePool = (!enemy.isRanged && frontHeroes.length > 0) ? frontHeroes : aliveHeroes;
+        target = (focusHero && meleePool.includes(focusHero)) ? focusHero : meleePool[Math.floor(Math.random() * meleePool.length)];
+      }
       applyEnemyHitToHero(enemy, target, rawDmg, canvasW, canvasH, '');
     }
 
     function applyEnemyHitToHero(enemy, target, rawDmg, canvasW, canvasH, prefix) {
       const aliveHeroes = state.heroes.filter(h => h.hp > 0);
-      const guardians = aliveHeroes.filter(h => h.id !== target.id && canHeroGuard(h));
+      const guardMatches = aliveHeroes
+        .filter(h => h.id !== target.id)
+        .map(h => ({ hero: h, res: canHeroGuard(h, target, enemy) }))
+        .filter(x => x.res);
       let guardedBy = null;
 
-      if (guardians.length > 0) {
-        guardedBy = guardians.find(g => g.id === 'gusbiki') || guardians[0];
+      if (guardMatches.length > 0) {
+        const picked = guardMatches.find(x => x.hero.id === 'gusbiki') || guardMatches[0];
+        guardedBy = picked.hero;
+        const rLbl1 = (REACTION_CONDITIONS.find(c => c.id === picked.res.cond1)?.label || '').replace(/^\[.*?\]\s*/, '');
+        const rLbl2 = picked.res.cond2 && picked.res.cond2 !== 'none' ? ' & ' + (REACTION_CONDITIONS.find(c => c.id === picked.res.cond2)?.label || '').replace(/^\[.*?\]\s*/, '') : '';
+        addLog(`${guardedBy.name} [反應#${picked.res.ruleIndex}: ${rLbl1}${rLbl2}] 替 ${target.name} 擋下 ${enemy.name} 的攻擊！`, 'text-sky-300');
         let mit = 0.20;
         if (guardedBy.id === 'gusbiki') {
           mit = hasSkill('gusbiki', 'bard_sac_guard') ? 0.45 : 0.20;
@@ -1549,7 +1753,9 @@
         });
         if (state.marchDist >= 130) {
           state.marchDist = 0;
+          state.focusTargetId = null;
           state.enemies = spawnWaveEnemies(state.wave);
+          if (state.wave > state.bestWave) { state.bestWave = state.wave; updateHeaderAndTabs(); saveProgress(); }
           state.phase = 'combat';
           const isDen = state.wave % 5 === 0;
           document.getElementById('uiStateBadge').textContent = isDen ? `獸穴首領戰：巴吉斯特！` : `戰鬥中 (第 ${state.wave} 波)`;
@@ -1610,6 +1816,7 @@
       state.heroes.forEach(h => {
         if (h.hp > 0) {
           state.heroProg[h.id].carriedXp += waveXp;
+          h.mp = Math.min(h.maxMp, h.mp + Math.round(h.maxMp * 0.25));
         } else {
           fallenHeroes.push(h.name);
         }
@@ -1660,8 +1867,10 @@
 
       SFX.play('wipe');
       addLog(`隊伍在第 ${state.wave} 波全滅！失去 ${totalLost} 未入帳經驗與 ${state.gold} 金幣。`, 'text-rose-400 font-bold');
+      const lostGold = state.gold;
+      state.gold = 0;
       document.getElementById('wipeLostXp').textContent = `-${totalLost}`;
-      document.getElementById('wipeLostGold').textContent = state.gold;
+      document.getElementById('wipeLostGold').textContent = lostGold;
       document.getElementById('wipeSavedXp').textContent = `+${totalSaved}`;
       document.getElementById('wipeEarnedShards').textContent = `+${bonusShards}`;
       document.getElementById('wipeOverlay').classList.remove('hidden');
@@ -1823,6 +2032,12 @@
             ctx.fillStyle = hero.tranceTimer > 0 ? '#f472b6' : '#38bdf8';
             ctx.fillRect(bx, by + 4, Math.round(barW * Math.min(1, hero.atb)), 1.5);
             if (hero.buffAtkTurns > 0) { ctx.fillStyle = '#fbbf24'; ctx.fillRect(bx + barW + 3, by, 4, 4); }
+            if (state.focusTargetId === hero.id && state.enemies.some(e => e.hp > 0 && e.type === 'hobgoblin')) {
+              ctx.fillStyle = '#f97316';
+              ctx.font = 'bold 9px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.fillText('🎯集火', Math.round(pos.x), by - 4);
+            }
           } else {
             drawPixelSprite(ctx, SPRITES[hero.sprite], PALETTES[hero.sprite], pos.x, pos.y, pixelScale, false, 0.25);
           }
@@ -1845,10 +2060,18 @@
           ctx.fillStyle = '#f59e0b';
           ctx.fillRect(bx, by + 4, Math.round(barW * Math.min(1, enemy.atb)), 1.5);
 
+          ctx.font = 'bold 9px "Noto Sans TC", sans-serif';
+          ctx.textAlign = 'center';
+          const eLabel = enemy.isBoss ? `★${enemy.name.split(' ')[0]}` : enemy.name;
+          ctx.fillStyle = 'rgba(0,0,0,0.85)';
+          ctx.fillText(eLabel, Math.round(pos.x) + 1, by - 8 + 1);
+          ctx.fillStyle = enemy.isBoss ? '#fbbf24' : '#cbd5e1';
+          ctx.fillText(eLabel, Math.round(pos.x), by - 8);
+
           let pipX = bx;
-          if (enemy.ccTurns > 0) { ctx.fillStyle = '#f472b6'; ctx.fillRect(pipX, by - 6, 5, 4); pipX += 7; }
-          if (enemy.atkDownTurns > 0) { ctx.fillStyle = '#c084fc'; ctx.fillRect(pipX, by - 6, 5, 4); pipX += 7; }
-          if (enemy.spdDownTurns > 0) { ctx.fillStyle = '#818cf8'; ctx.fillRect(pipX, by - 6, 5, 4); }
+          if (enemy.ccTurns > 0) { ctx.fillStyle = '#f472b6'; ctx.fillRect(pipX, by - 19, 5, 4); pipX += 7; }
+          if (enemy.atkDownTurns > 0) { ctx.fillStyle = '#c084fc'; ctx.fillRect(pipX, by - 19, 5, 4); pipX += 7; }
+          if (enemy.spdDownTurns > 0) { ctx.fillStyle = '#818cf8'; ctx.fillRect(pipX, by - 19, 5, 4); }
         }
       });
 
@@ -1996,7 +2219,9 @@
       renderHeroSelectorButtons('charSelector', () => { renderTacticsEditor(); renderSkillTree(); });
 
       const tpl = HERO_TEMPLATES[state.selectedHeroId];
-      const unlockedSkills = tpl.skills.filter(s => s.type !== 'passive' && hasSkill(tpl.id, s.id));
+      const unlockedActive = tpl.skills.filter(s => s.type === 'active' && hasSkill(tpl.id, s.id));
+      const unlockedReact = tpl.skills.filter(s => s.type === 'guard' && hasSkill(tpl.id, s.id));
+      const unlockedSkills = [...unlockedActive, ...unlockedReact];
 
       document.getElementById('charInfoBanner').innerHTML = `
         <div class="flex items-center gap-3">
@@ -2028,7 +2253,10 @@
       document.getElementById('btnRowFront').addEventListener('click', () => setHeroRow('front'));
       document.getElementById('btnRowBack').addEventListener('click', () => setHeroRow('back'));
 
-      const rules = state.tactics[state.selectedHeroId];
+      const tacObj = state.tactics[state.selectedHeroId];
+      const rules = tacObj.active;
+      const reactRules = tacObj.reaction;
+
       // Static Priority Inversion Check (UO Spec 5.2)
       let shadowIdx = -1;
       for (let i = 0; i < rules.length; i++) {
@@ -2041,71 +2269,59 @@
         const c1Soft = (CONDITIONS.find(c => c.id === c1)?.sem !== 'HARD') || c1 === 'always';
         const c2Soft = (CONDITIONS.find(c => c.id === c2)?.sem !== 'HARD') || c2 === 'always';
         if (c1Soft && c2Soft && i < rules.length - 1) {
-          const hasActiveBelow = rules.slice(i + 1).some(nr => {
-            if (!nr.enabled) return false;
-            const ns = tpl.skills.find(x => x.id === nr.skill);
-            return ns && ns.type === 'active';
-          });
+          const hasActiveBelow = rules.slice(i + 1).some(nr => nr.enabled);
           if (hasActiveBelow) { shadowIdx = i + 1; break; }
         }
       }
       const warnEl = document.getElementById('tacticWarning');
       if (shadowIdx !== -1) {
-        warnEl.textContent = `⚠ 死鎖提醒：第 #${shadowIdx} 條戰術沒有硬性限制且不耗 MP，位於其下方的「主動」戰術可能永遠不會被執行！`;
+        warnEl.textContent = `⚠ 死鎖提醒：第 #${shadowIdx} 條主動戰術沒有硬性限制且不耗 MP，位於其下方的戰術可能永遠不會被執行！`;
         warnEl.classList.remove('hidden');
       } else {
         warnEl.classList.add('hidden');
       }
 
-      const listEl = document.getElementById('tacticList');
-      listEl.innerHTML = rules.map((r, idx) => {
-        const c1Val = r.cond1 || r.cond || 'always';
-        const c2Val = r.cond2 || 'none';
-        const cond1Opts = CONDITIONS.filter(c => c.id !== 'none').map(c => `<option value="${c.id}" ${c.id === c1Val ? 'selected' : ''}>${c.label}</option>`).join('');
-        const cond2Opts = CONDITIONS.map(c => `<option value="${c.id}" ${c.id === c2Val ? 'selected' : ''}>${c.label}</option>`).join('');
-        const skillOpts = unlockedSkills.map(s => `<option value="${s.id}" ${s.id === r.skill ? 'selected' : ''}>${s.type === 'guard' ? '[反應] ' : '[主動] '}${s.name}${s.mpCost ? ` (${s.mpCost}MP)` : ''}</option>`).join('');
-        return `
-          <div class="bg-[#101520] border border-[#273248] rounded p-2 flex flex-wrap items-center gap-1.5 text-xs">
-            <span class="font-mono text-amber-400 font-bold w-5 text-center">#${idx + 1}</span>
-            <label class="flex items-center gap-1 cursor-pointer">
-              <input type="checkbox" data-idx="${idx}" class="tac-enable accent-emerald-400" ${r.enabled ? 'checked' : ''} />
-            </label>
-            <select data-idx="${idx}" class="tac-cond1 bg-[#192030] border border-[#34425e] rounded px-1.5 py-1 text-slate-200 flex-1 min-w-[130px]" title="條件 1">
-              ${cond1Opts}
-            </select>
-            <span class="text-slate-500 text-[10px]">且</span>
-            <select data-idx="${idx}" class="tac-cond2 bg-[#192030] border border-[#34425e] rounded px-1.5 py-1 text-slate-300 flex-1 min-w-[130px]" title="條件 2 (選填)">
-              ${cond2Opts}
-            </select>
-            <span class="text-slate-500">➔</span>
-            <select data-idx="${idx}" class="tac-skill bg-[#192030] border border-[#34425e] rounded px-1.5 py-1 text-amber-200 flex-1 min-w-[160px]">
-              ${skillOpts}
-            </select>
-            <div class="flex items-center gap-1">
-              <button data-idx="${idx}" class="tac-up pixel-btn bg-[#20283d] px-2 py-0.5 rounded text-[11px]" ${idx === 0 ? 'disabled' : ''}>↑</button>
-              <button data-idx="${idx}" class="tac-down pixel-btn bg-[#20283d] px-2 py-0.5 rounded text-[11px]" ${idx === rules.length - 1 ? 'disabled' : ''}>↓</button>
-              <button data-idx="${idx}" class="tac-del pixel-btn bg-rose-950/60 border-rose-700/50 text-rose-300 px-2 py-0.5 rounded text-[11px]" ${rules.length <= 1 ? 'disabled' : ''}>✕</button>
+      const renderRuleRows = (containerId, listArr, condList, skillList, minLen) => {
+        const el = document.getElementById(containerId);
+        if (!skillList.length) {
+          el.innerHTML = `<div class="text-[11px] text-slate-500 italic px-2 py-1">此角色無此類技能</div>`;
+          return;
+        }
+        el.innerHTML = listArr.map((r, idx) => {
+          const c1Val = r.cond1 || 'always';
+          const c2Val = r.cond2 || 'none';
+          const cond1Opts = condList.filter(c => c.id !== 'none').map(c => `<option value="${c.id}" ${c.id === c1Val ? 'selected' : ''}>${c.label}</option>`).join('');
+          const cond2Opts = condList.map(c => `<option value="${c.id}" ${c.id === c2Val ? 'selected' : ''}>${c.label}</option>`).join('');
+          const skillOpts = skillList.map(s => `<option value="${s.id}" ${s.id === r.skill ? 'selected' : ''}>${s.name}${s.mpCost ? ` (${s.mpCost}MP)` : ''}</option>`).join('');
+          return `
+            <div class="bg-[#101520] border border-[#273248] rounded p-2 flex flex-wrap items-center gap-1.5 text-xs">
+              <span class="font-mono text-amber-400 font-bold w-5 text-center">#${idx + 1}</span>
+              <input type="checkbox" data-idx="${idx}" class="r-enable accent-emerald-400 cursor-pointer" ${r.enabled ? 'checked' : ''} />
+              <select data-idx="${idx}" class="r-cond1 bg-[#192030] border border-[#34425e] rounded px-1.5 py-1 text-slate-200 flex-1 min-w-[130px]">${cond1Opts}</select>
+              <span class="text-slate-500 text-[10px]">且</span>
+              <select data-idx="${idx}" class="r-cond2 bg-[#192030] border border-[#34425e] rounded px-1.5 py-1 text-slate-300 flex-1 min-w-[130px]">${cond2Opts}</select>
+              <span class="text-slate-500">➔</span>
+              <select data-idx="${idx}" class="r-skill bg-[#192030] border border-[#34425e] rounded px-1.5 py-1 text-amber-200 flex-1 min-w-[155px]">${skillOpts}</select>
+              <div class="flex items-center gap-1">
+                <button data-idx="${idx}" class="r-up pixel-btn bg-[#20283d] px-2 py-0.5 rounded text-[11px]" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                <button data-idx="${idx}" class="r-down pixel-btn bg-[#20283d] px-2 py-0.5 rounded text-[11px]" ${idx === listArr.length - 1 ? 'disabled' : ''}>↓</button>
+                <button data-idx="${idx}" class="r-del pixel-btn bg-rose-950/60 border-rose-700/50 text-rose-300 px-2 py-0.5 rounded text-[11px]" ${listArr.length <= minLen ? 'disabled' : ''}>✕</button>
+              </div>
             </div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+        el.querySelectorAll('.r-enable').forEach(x => x.addEventListener('change', e => { listArr[e.target.dataset.idx].enabled = e.target.checked; saveProgress(); renderTacticsEditor(); }));
+        el.querySelectorAll('.r-cond1').forEach(x => x.addEventListener('change', e => { listArr[e.target.dataset.idx].cond1 = e.target.value; saveProgress(); renderTacticsEditor(); }));
+        el.querySelectorAll('.r-cond2').forEach(x => x.addEventListener('change', e => { listArr[e.target.dataset.idx].cond2 = e.target.value; saveProgress(); renderTacticsEditor(); }));
+        el.querySelectorAll('.r-skill').forEach(x => x.addEventListener('change', e => { listArr[e.target.dataset.idx].skill = e.target.value; saveProgress(); renderTacticsEditor(); }));
+        el.querySelectorAll('.r-up').forEach(x => x.addEventListener('click', e => { const i = Number(e.target.dataset.idx); if (i > 0) { [listArr[i-1], listArr[i]] = [listArr[i], listArr[i-1]]; saveProgress(); renderTacticsEditor(); } }));
+        el.querySelectorAll('.r-down').forEach(x => x.addEventListener('click', e => { const i = Number(e.target.dataset.idx); if (i < listArr.length - 1) { [listArr[i+1], listArr[i]] = [listArr[i], listArr[i+1]]; saveProgress(); renderTacticsEditor(); } }));
+        el.querySelectorAll('.r-del').forEach(x => x.addEventListener('click', e => { const i = Number(e.target.dataset.idx); if (listArr.length > minLen) { listArr.splice(i, 1); saveProgress(); renderTacticsEditor(); } }));
+      };
 
-      listEl.querySelectorAll('.tac-enable').forEach(el => el.addEventListener('change', e => { rules[e.target.dataset.idx].enabled = e.target.checked; saveProgress(); renderTacticsEditor(); }));
-      listEl.querySelectorAll('.tac-cond1').forEach(el => el.addEventListener('change', e => { rules[e.target.dataset.idx].cond1 = e.target.value; saveProgress(); renderTacticsEditor(); }));
-      listEl.querySelectorAll('.tac-cond2').forEach(el => el.addEventListener('change', e => { rules[e.target.dataset.idx].cond2 = e.target.value; saveProgress(); renderTacticsEditor(); }));
-      listEl.querySelectorAll('.tac-skill').forEach(el => el.addEventListener('change', e => { rules[e.target.dataset.idx].skill = e.target.value; saveProgress(); }));
-      listEl.querySelectorAll('.tac-up').forEach(el => el.addEventListener('click', e => {
-        const i = Number(e.target.dataset.idx);
-        if (i > 0) { [rules[i - 1], rules[i]] = [rules[i], rules[i - 1]]; saveProgress(); renderTacticsEditor(); }
-      }));
-      listEl.querySelectorAll('.tac-down').forEach(el => el.addEventListener('click', e => {
-        const i = Number(e.target.dataset.idx);
-        if (i < rules.length - 1) { [rules[i + 1], rules[i]] = [rules[i], rules[i + 1]]; saveProgress(); renderTacticsEditor(); }
-      }));
-      listEl.querySelectorAll('.tac-del').forEach(el => el.addEventListener('click', e => {
-        const i = Number(e.target.dataset.idx);
-        if (rules.length > 1) { rules.splice(i, 1); saveProgress(); renderTacticsEditor(); }
-      }));
+      renderRuleRows('tacticList', rules, CONDITIONS, unlockedActive, 1);
+      renderRuleRows('reactionList', reactRules, REACTION_CONDITIONS, unlockedReact, 0);
+      document.getElementById('btnAddReaction').disabled = !unlockedReact.length || reactRules.length >= 4;
     }
 
     function renderSkillTree() {
@@ -2165,10 +2381,29 @@
           const sid = btn.dataset.skill;
           if (getAvailableSp(heroId) <= 0) return;
           state.learnedSkills[heroId].push(sid);
+          const sDef = tpl.skills.find(x => x.id === sid);
+          if (sDef && sDef.type !== 'passive') {
+            const tObj = state.tactics[heroId];
+            if (sDef.type === 'guard') {
+              tObj.reaction.unshift({ enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: sid });
+            } else if (tObj.active.length < 8) {
+              const defCond = sid.includes('heal') || sid.includes('mist') ? 'ally_hp_lt_70'
+                : sid.includes('revive') ? 'ally_dead'
+                : sid.includes('mirror') ? 'self_no_mirror'
+                : sid.includes('barrage') || sid.includes('burst') ? 'enemies_ge_2'
+                : sid.includes('curse_atk') ? 'enemy_front_no_atk_down'
+                : sid.includes('curse_spd') ? 'enemy_back_no_spd_down'
+                : 'prio_shaman';
+              const insertAt = Math.max(0, tObj.active.length - 1);
+              tObj.active.splice(insertAt, 0, { enabled: true, cond1: defCond, cond2: 'none', skill: sid });
+            }
+            document.getElementById('tabNewTacBadge').classList.remove('hidden');
+            showToast(`✨ 習得【${sDef.name.split('（')[0]}】並已自動排入戰術！`);
+          }
           refreshHeroScaledStats();
           SFX.play('magic');
           saveProgress();
-          addLog(`${tpl.name} 習得了新技能！`, 'text-emerald-300');
+          addLog(`${tpl.name} 習得了新技能【${sDef ? sDef.name.split('（')[0] : sid}】！`, 'text-emerald-300');
           updateHeaderAndTabs();
           renderSkillTree();
           renderTacticsEditor();
@@ -2190,6 +2425,10 @@
                 ${u.instant ? '' : `<span class="text-amber-300 font-mono">Lv.${lv}</span>`}
               </div>
               <p class="text-[11px] text-slate-400 mt-1">${u.desc}</p>
+            </div>
+            <div class="text-[10px] font-mono text-slate-400 flex justify-between">
+              <span>目前：<span class="text-amber-300">${cost} 金</span></span>
+              <span>下次：${Math.round(u.baseCost * Math.pow(u.scale, lv + 1))} 金</span>
             </div>
             <button data-id="${u.id}" class="camp-buy-btn pixel-btn w-full py-1 rounded text-xs font-bold ${canBuy ? 'bg-amber-600/80 hover:bg-amber-500 text-white border-amber-400' : 'bg-[#192030] text-slate-500'}" ${canBuy ? '' : 'disabled'}>
               購買（${cost} 金幣）
@@ -2234,6 +2473,10 @@
               </div>
               <p class="text-[11px] text-slate-400 mt-1">${u.desc}</p>
             </div>
+            <div class="text-[10px] font-mono text-slate-400 flex justify-between">
+              <span>目前：<span class="text-purple-300">${cost} 星塵</span></span>
+              <span>下次：${Math.round(u.baseCost * Math.pow(u.scale, lv + 1))} 星塵</span>
+            </div>
             <button data-id="${u.id}" class="altar-buy-btn pixel-btn w-full py-1 rounded text-xs font-bold ${canBuy ? 'bg-purple-600/85 hover:bg-purple-500 text-white border-purple-400' : 'bg-[#192030] text-slate-500'}" ${canBuy ? '' : 'disabled'}>
               強化（${cost} 星塵）
             </button>
@@ -2267,8 +2510,12 @@
     // 9. INITIALIZATION
     // =========================================================================
     window.onload = () => {
-      loadProgress();
-      state.heroes = createHeroes();
+      const loaded = loadProgress();
+      if (!loaded) state.heroes = createHeroes();
+      if (state.phase === 'camp') {
+        document.getElementById('campOverlay').classList.remove('hidden');
+        document.getElementById('uiStateBadge').textContent = '營地休整中（可升級技能）';
+      }
       resizeCanvas();
       window.addEventListener('resize', resizeCanvas);
 
@@ -2346,6 +2593,85 @@
         btnMute.textContent = SFX.toggleMute() ? '🔇' : '🔊';
       });
 
+      // Save Manager Modal bindings
+      const saveModal = document.getElementById('saveModal');
+      const saveCodeInput = document.getElementById('saveCodeInput');
+      document.getElementById('btnSaveMgr').addEventListener('click', () => {
+        saveProgress();
+        saveModal.classList.remove('hidden');
+      });
+      document.getElementById('btnSaveClose').addEventListener('click', () => saveModal.classList.add('hidden'));
+      document.getElementById('btnSaveLocal').addEventListener('click', () => {
+        saveProgress();
+        showToast('💾 進度已儲存至瀏覽器！');
+      });
+      document.getElementById('btnExportCode').addEventListener('click', () => {
+        saveProgress();
+        const json = JSON.stringify(buildSavePayload());
+        const b64 = btoa(unescape(encodeURIComponent(json)));
+        saveCodeInput.value = b64;
+        saveCodeInput.select();
+        try { navigator.clipboard.writeText(b64); } catch (_) { try { document.execCommand('copy'); } catch (__) {} }
+        showToast('📋 已產生並複製存檔碼！');
+      });
+      document.getElementById('btnDownloadSave').addEventListener('click', () => {
+        saveProgress();
+        const blob = new Blob([JSON.stringify(buildSavePayload(), null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'astral_caravan_save.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('⬇ 已下載存檔檔！');
+      });
+      document.getElementById('btnImportCode').addEventListener('click', () => {
+        const raw = saveCodeInput.value.trim();
+        if (!raw) return;
+        try {
+          let parsed = null;
+          if (raw.startsWith('{')) parsed = JSON.parse(raw);
+          else parsed = JSON.parse(decodeURIComponent(escape(atob(raw))));
+          if (applySavePayload(parsed)) {
+            saveProgress();
+            document.getElementById('campOverlay').classList.toggle('hidden', state.phase !== 'camp');
+            document.getElementById('wipeOverlay').classList.add('hidden');
+            renderPartyStrip();
+            renderTacticsEditor();
+            renderSkillTree();
+            updateHeaderAndTabs();
+            saveModal.classList.add('hidden');
+            showToast('📥 存檔讀取成功！');
+          }
+        } catch (_) {
+          showToast('⚠ 存檔碼格式不正確');
+        }
+      });
+      let resetConfirmArmed = false;
+      document.getElementById('btnResetSave').addEventListener('click', (e) => {
+        if (!resetConfirmArmed) {
+          resetConfirmArmed = true;
+          e.target.textContent = '⚠ 確定清除？再按一次';
+          setTimeout(() => { resetConfirmArmed = false; e.target.textContent = '🗑 清除存檔重玩'; }, 3000);
+          return;
+        }
+        try { localStorage.removeItem(SAVE_KEY); } catch (_) {}
+        state.bestWave = 1; state.shards = 0; state.gold = 0; state.wave = 1;
+        state.heroProg = { gusbiki: { level: 1, bankedXp: 0, carriedXp: 0 }, shandriel: { level: 1, bankedXp: 0, carriedXp: 0 }, heinzel: { level: 1, bankedXp: 0, carriedXp: 0 } };
+        state.altarLevels = { altar_hp: 0, altar_atk: 0, altar_xp: 0, altar_shard: 0 };
+        state.learnedSkills = { gusbiki: [], shandriel: [], heinzel: [] };
+        state.tactics = {
+          gusbiki: JSON.parse(JSON.stringify(HERO_TEMPLATES.gusbiki.defaultTactics)),
+          shandriel: JSON.parse(JSON.stringify(HERO_TEMPLATES.shandriel.defaultTactics)),
+          heinzel: JSON.parse(JSON.stringify(HERO_TEMPLATES.heinzel.defaultTactics)),
+        };
+        restartRun();
+        saveProgress();
+        renderTacticsEditor();
+        renderSkillTree();
+        saveModal.classList.add('hidden');
+        showToast('🗑 已重置為全新存檔！');
+      });
+
       document.getElementById('btnRestartNow').addEventListener('click', restartRun);
 
       document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2359,15 +2685,26 @@
 
           document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
           document.getElementById(`tab-${btn.dataset.tab}`).classList.remove('hidden');
+          if (btn.dataset.tab === 'tactics') document.getElementById('tabNewTacBadge').classList.add('hidden');
         });
       });
 
       document.getElementById('btnAddTactic').addEventListener('click', () => {
-        const rules = state.tactics[state.selectedHeroId];
+        const rules = state.tactics[state.selectedHeroId].active;
         if (rules.length >= 8) return;
         const tpl = HERO_TEMPLATES[state.selectedHeroId];
-        const firstActive = tpl.skills.find(s => s.type !== 'passive' && hasSkill(tpl.id, s.id));
+        const firstActive = tpl.skills.find(s => s.type === 'active' && hasSkill(tpl.id, s.id));
         rules.push({ enabled: true, cond1: 'always', cond2: 'none', skill: firstActive.id });
+        saveProgress();
+        renderTacticsEditor();
+      });
+      document.getElementById('btnAddReaction').addEventListener('click', () => {
+        const reactRules = state.tactics[state.selectedHeroId].reaction;
+        if (reactRules.length >= 4) return;
+        const tpl = HERO_TEMPLATES[state.selectedHeroId];
+        const firstGuard = tpl.skills.find(s => s.type === 'guard' && hasSkill(tpl.id, s.id));
+        if (!firstGuard) return;
+        reactRules.push({ enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: firstGuard.id });
         saveProgress();
         renderTacticsEditor();
       });
@@ -2379,54 +2716,65 @@
         renderTacticsEditor();
       });
 
-      document.getElementById('btnAutoOptimize').addEventListener('click', () => {
+      const applyPresetTemplate = (mode) => {
         const id = state.selectedHeroId;
-        const opt = [];
+        const active = [];
+        const reaction = [];
         if (id === 'gusbiki') {
-          if (hasSkill(id, 'bard_sac_guard')) opt.push({ enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: 'bard_sac_guard' });
-          else opt.push({ enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: 'bard_guard' });
-          if (hasSkill(id, 'bard_heal_song')) opt.push({ enabled: true, cond1: 'ally_hp_lt_45', cond2: 'none', skill: 'bard_heal_song' });
-          if (hasSkill(id, 'bard_triumph')) opt.push({ enabled: true, cond1: 'ally_no_atk_buff', cond2: 'none', skill: 'bard_triumph' });
-          else opt.push({ enabled: true, cond1: 'ally_no_atk_buff', cond2: 'self_mp_ge_30', skill: 'bard_inspire' });
-          if (hasSkill(id, 'bard_charm_finale')) opt.push({ enabled: true, cond1: 'enemy_not_cc', cond2: 'enemies_ge_2', skill: 'bard_charm_finale' });
-          else if (hasSkill(id, 'bard_trance')) opt.push({ enabled: true, cond1: 'enemy_not_cc', cond2: 'prio_shaman', skill: 'bard_trance' });
-          else if (hasSkill(id, 'bard_confuse')) opt.push({ enabled: true, cond1: 'enemy_not_cc', cond2: 'prio_back', skill: 'bard_confuse' });
-          if (hasSkill(id, 'bard_pierce_bow')) opt.push({ enabled: true, cond1: 'prio_shaman', cond2: 'prio_back', skill: 'bard_pierce_bow' });
-          else if (hasSkill(id, 'bard_rapid_bow')) opt.push({ enabled: true, cond1: 'prio_shaman', cond2: 'prio_back', skill: 'bard_rapid_bow' });
-          opt.push({ enabled: true, cond1: 'prio_shaman', cond2: 'prio_back', skill: 'bard_bow' });
-        } else if (id === 'shandriel') {
-          if (hasSkill(id, 'mage_mirror')) opt.push({ enabled: true, cond1: 'self_no_mirror', cond2: 'none', skill: 'mage_mirror' });
-          if (hasSkill(id, 'mage_arcane_burst')) opt.push({ enabled: true, cond1: 'enemies_ge_2', cond2: 'none', skill: 'mage_arcane_burst' });
-          else if (hasSkill(id, 'mage_barrage')) opt.push({ enabled: true, cond1: 'enemies_ge_2', cond2: 'none', skill: 'mage_barrage' });
-          if (hasSkill(id, 'mage_blast')) opt.push({ enabled: true, cond1: 'prio_shaman', cond2: 'prio_highest_hp', skill: 'mage_blast' });
-          else if (hasSkill(id, 'mage_twin')) opt.push({ enabled: true, cond1: 'prio_shaman', cond2: 'prio_back', skill: 'mage_twin' });
-          opt.push({ enabled: true, cond1: 'prio_shaman', cond2: 'prio_lowest_hp', skill: 'mage_missile' });
-          opt.push({ enabled: true, cond1: 'always', cond2: 'none', skill: 'mage_staff' });
-        } else if (id === 'heinzel') {
-          if (hasSkill(id, 'herb_revive')) opt.push({ enabled: true, cond1: 'ally_dead', cond2: 'none', skill: 'herb_revive' });
-          if (hasSkill(id, 'herb_mist')) opt.push({ enabled: true, cond1: 'ally_hp_lt_70', cond2: 'none', skill: 'herb_mist' });
-          opt.push({ enabled: true, cond1: 'ally_hp_lt_45', cond2: 'none', skill: 'herb_bandage' });
-          opt.push({ enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: 'herb_guard' });
-          if (hasSkill(id, 'herb_curse_spread')) opt.push({ enabled: true, cond1: 'enemy_front_no_atk_down', cond2: 'none', skill: 'herb_curse_spread' });
-          else if (hasSkill(id, 'herb_twin_curse')) opt.push({ enabled: true, cond1: 'enemy_front_no_atk_down', cond2: 'none', skill: 'herb_twin_curse' });
-          else {
-            if (hasSkill(id, 'herb_curse_atk')) opt.push({ enabled: true, cond1: 'enemy_front_no_atk_down', cond2: 'none', skill: 'herb_curse_atk' });
-            if (hasSkill(id, 'herb_curse_spd')) opt.push({ enabled: true, cond1: 'enemy_back_no_spd_down', cond2: 'none', skill: 'herb_curse_spd' });
+          reaction.push({ enabled: true, cond1: 'self_hp_ge_25', cond2: 'none', skill: hasSkill(id, 'bard_sac_guard') ? 'bard_sac_guard' : 'bard_guard' });
+          if (hasSkill(id, 'bard_heal_song')) active.push({ enabled: true, cond1: mode === 'heal' ? 'ally_hp_lt_70' : 'ally_hp_lt_45', cond2: 'none', skill: 'bard_heal_song' });
+          active.push({ enabled: true, cond1: 'ally_no_atk_buff', cond2: 'self_mp_ge_30', skill: hasSkill(id, 'bard_triumph') ? 'bard_triumph' : 'bard_inspire' });
+          if (mode === 'shaman') {
+            if (hasSkill(id, 'bard_trance')) active.push({ enabled: true, cond1: 'enemy_type_gob_shaman', cond2: 'enemy_not_cc', skill: 'bard_trance' });
+            active.push({ enabled: true, cond1: 'enemy_type_gob_shaman', cond2: 'none', skill: hasSkill(id, 'bard_pierce_bow') ? 'bard_pierce_bow' : 'bard_bow' });
+          } else if (mode === 'aoe') {
+            if (hasSkill(id, 'bard_charm_finale')) active.push({ enabled: true, cond1: 'enemies_ge_3', cond2: 'enemy_not_cc', skill: 'bard_charm_finale' });
           }
-          opt.push({ enabled: true, cond1: 'always', cond2: 'none', skill: 'herb_bonk' });
+          active.push({ enabled: true, cond1: 'enemy_back_alive', cond2: 'prio_shaman', skill: 'bard_bow' });
+          active.push({ enabled: true, cond1: 'always', cond2: 'none', skill: 'bard_dagger' });
+        } else if (id === 'shandriel') {
+          if (hasSkill(id, 'mage_mirror')) active.push({ enabled: true, cond1: 'self_no_mirror', cond2: 'none', skill: 'mage_mirror' });
+          if (mode === 'aoe') {
+            if (hasSkill(id, 'mage_arcane_burst')) active.push({ enabled: true, cond1: 'enemies_ge_3', cond2: 'none', skill: 'mage_arcane_burst' });
+            else if (hasSkill(id, 'mage_barrage')) active.push({ enabled: true, cond1: 'enemies_ge_3', cond2: 'none', skill: 'mage_barrage' });
+          } else {
+            if (hasSkill(id, 'mage_arcane_burst')) active.push({ enabled: true, cond1: 'enemies_ge_2', cond2: 'none', skill: 'mage_arcane_burst' });
+            else if (hasSkill(id, 'mage_barrage')) active.push({ enabled: true, cond1: 'enemies_ge_2', cond2: 'none', skill: 'mage_barrage' });
+          }
+          if (mode === 'shaman') {
+            active.push({ enabled: true, cond1: 'enemy_type_gob_shaman', cond2: 'none', skill: hasSkill(id, 'mage_blast') ? 'mage_blast' : 'mage_missile' });
+          }
+          active.push({ enabled: true, cond1: 'prio_shaman', cond2: 'prio_lowest_hp', skill: 'mage_missile' });
+          active.push({ enabled: true, cond1: 'always', cond2: 'none', skill: 'mage_staff' });
+        } else if (id === 'heinzel') {
+          reaction.push({ enabled: true, cond1: 'self_hp_ge_25', cond2: mode === 'heal' ? 'react_ally_hp_lt_50' : 'none', skill: 'herb_guard' });
+          if (hasSkill(id, 'herb_revive')) active.push({ enabled: true, cond1: 'ally_dead', cond2: 'none', skill: 'herb_revive' });
+          if (hasSkill(id, 'herb_mist')) active.push({ enabled: true, cond1: 'ally_hp_lt_70', cond2: mode === 'aoe' ? 'enemies_ge_3' : 'none', skill: 'herb_mist' });
+          active.push({ enabled: true, cond1: mode === 'heal' ? 'ally_hp_lt_70' : 'ally_hp_lt_45', cond2: 'none', skill: 'herb_bandage' });
+          if (hasSkill(id, 'herb_curse_spread')) active.push({ enabled: true, cond1: 'enemy_not_cursed', cond2: mode === 'aoe' ? 'enemies_ge_3' : 'none', skill: 'herb_curse_spread' });
+          else {
+            if (hasSkill(id, 'herb_curse_atk')) active.push({ enabled: true, cond1: 'enemy_front_no_atk_down', cond2: 'none', skill: 'herb_curse_atk' });
+            if (hasSkill(id, 'herb_curse_spd')) active.push({ enabled: true, cond1: 'enemy_back_no_spd_down', cond2: 'none', skill: 'herb_curse_spd' });
+          }
+          active.push({ enabled: true, cond1: 'always', cond2: 'none', skill: 'herb_bonk' });
         }
-        state.tactics[id] = opt;
+        state.tactics[id] = { active, reaction };
         saveProgress();
         renderTacticsEditor();
-        showToast(`✨ 已為 ${HERO_TEMPLATES[id].name} 自動最佳化戰術！`);
-      });
+      };
+
+      document.getElementById('btnAutoOptimize').addEventListener('click', () => { applyPresetTemplate('opt'); showToast(`✨ 已套用一鍵最佳化戰術！`); });
+      document.getElementById('btnTplShaman').addEventListener('click', () => { applyPresetTemplate('shaman'); showToast(`🎯 已套用「先打薩滿」範本！`); });
+      document.getElementById('btnTplAoe').addEventListener('click', () => { applyPresetTemplate('aoe'); showToast(`💥 已套用「人多才放大招」範本！`); });
+      document.getElementById('btnTplHeal').addEventListener('click', () => { applyPresetTemplate('heal'); showToast(`💚 已套用「先補最殘的」範本！`); });
 
       document.getElementById('btnRespecHero').addEventListener('click', () => {
         const id = state.selectedHeroId;
         state.learnedSkills[id] = [];
         // Remove any unlearned skills from tactics
-        state.tactics[id] = state.tactics[id].filter(r => hasSkill(id, r.skill));
-        if (state.tactics[id].length === 0) {
+        state.tactics[id].active = state.tactics[id].active.filter(r => hasSkill(id, r.skill));
+        state.tactics[id].reaction = state.tactics[id].reaction.filter(r => hasSkill(id, r.skill));
+        if (state.tactics[id].active.length === 0) {
           state.tactics[id] = JSON.parse(JSON.stringify(HERO_TEMPLATES[id].defaultTactics));
         }
         refreshHeroScaledStats();
